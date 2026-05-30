@@ -23,6 +23,10 @@ agents = ["codex", "claude", "cursor"]
 [[skills]]
 name = "code-cleanup"
 source = "dcramer/agents"
+
+[[skills]]
+name = "thermo-nuclear-code-quality-review"
+source = "dcramer/agents"
 ```
 
 Refresh installed skills after changes:
@@ -41,6 +45,7 @@ npx @sentry/dotagents list
 
 - `skills/` contains reusable agent skills.
 - `skills/code-cleanup/` reviews branch changes for simplification, reliability, policy compliance, and verification.
+- `skills/thermo-nuclear-code-quality-review/` runs an unusually strict maintainability review for abstraction quality, giant files, and spaghetti-condition growth.
 
 ## Skill Format
 
@@ -49,3 +54,9 @@ Each skill lives in its own directory and starts with `SKILL.md`. New skills sho
 - `SKILL.md` for runtime instructions.
 - `SPEC.md` for the maintenance contract when the skill intent or scope is non-trivial.
 - `SOURCES.md` for provenance, decisions, gaps, and changelog entries.
+
+## Attribution
+
+| Skill | Source | License |
+| --- | --- | --- |
+| `thermo-nuclear-code-quality-review` | Vendored from Cursor Team Kit's [`thermo-nuclear-code-quality-review`](https://github.com/cursor/plugins/tree/main/cursor-team-kit/skills/thermo-nuclear-code-quality-review) by Cursor. | MIT, Copyright (c) 2026 Cursor. See `skills/thermo-nuclear-code-quality-review/README.md` and `skills/thermo-nuclear-code-quality-review/SOURCES.md` for attribution, provenance, and the upstream license notice. |
