@@ -10,11 +10,11 @@ In scope:
 - incremental feature or fix implementation slices
 - current-diff review and directly related files
 - mandatory subagent-backed advisory review for every enumerated review task
-- bundled policy review for code comments and interface design
+- bundled policy review for code comments, interface design, and test quality
 - independent verification advice for risky slices, ambiguous validation, or final readiness checks
 - fixing material concerns found by the review
 - targeted tests, type checks, linters, builds, and explicit validation blockers
-- specs/docs, bundled policy compliance, dead code, delayering, type contracts, generated artifacts, dependency drift, and test coverage
+- specs/docs, bundled policy compliance, dead code, delayering, type contracts, generated artifacts, dependency drift, and test quality
 
 Out of scope:
 - review-only branch audits with no implementation authority
@@ -34,15 +34,15 @@ Out of scope:
 
 - Required first actions: inspect status, diff/base, repo instructions, relevant specs/docs, relevant tests, generated artifacts, lockfiles, and bundled policy references.
 - Required outputs: no cycle log; final status with validation run, independent verification result when used, and residual material concerns only.
-- Non-negotiable constraints: enumerate review tasks across behavior/spec, specs/docs, repo instructions, dead code, delayering, type boundaries, tests/fixtures, generated/dependencies, validation, and bundled policies; use one review-only subagent per review task; stop if subagents are unavailable; coordinate validity instead of accepting findings automatically; use a separate verification advisor only when it adds signal; require evidence labels and concrete locators for concerns; apply only high-confidence accepted material concerns; preserve unrelated user changes; repeat after material edits; avoid unbounded loops; and do not stop with unresolved blocker/high/medium concerns unless blocked or explicitly deferred.
-- Expected bundled files loaded at runtime: `SKILL.md`, `references/code-comments.md`, and `references/interface-design.md`.
+- Non-negotiable constraints: enumerate review tasks across behavior/spec, specs/docs, repo instructions, dead code, delayering, type boundaries, generated/dependencies, validation, and bundled policies; use one review-only subagent per non-policy review task and one policy subagent per bundled policy; stop if subagents are unavailable; coordinate validity instead of accepting findings automatically; use a separate verification advisor only when it adds signal; require evidence labels and concrete locators for concerns; apply only high-confidence accepted material concerns; preserve unrelated user changes; repeat after material edits; avoid unbounded loops; and do not stop with unresolved blocker/high/medium concerns unless blocked or explicitly deferred.
+- Expected bundled files loaded at runtime: `SKILL.md`, `references/code-comments.md`, `references/interface-design.md`, and `references/test-quality.md`.
 
 ## Source And Evidence Model
 
 Authoritative sources:
 - the user's seed prompt
 - local repo instructions
-- bundled policy references
+- bundled policy references, including test-quality policy
 - changed code, related specs/docs, and tests
 - generated artifacts, lockfiles, schemas, and dependency manifests
 - validation command output

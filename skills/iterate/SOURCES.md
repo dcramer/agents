@@ -11,6 +11,9 @@
 | `/Users/dcramer/src/junior/policies/policy-template.md` | High | Provides the concise policy file shape. | Adapted into `references/policy-template.md`. |
 | `/Users/dcramer/src/junior/policies/code-comments.md` | High | Defines when comments/JSDoc are useful and when they are noise. | Vendored into `references/code-comments.md`. |
 | `/Users/dcramer/src/junior/policies/interface-design.md` | High | Defines narrow interface, naming, lifecycle, ownership, and platform-boundary defaults. | Vendored into `references/interface-design.md`. |
+| User test-quality policy request | High | Defines recurring bad agent-test patterns: over-mocking, weak unit defaults, duplication, and telemetry assertions. | Adapted into `references/test-quality.md` and used to replace the generic tests/fixtures review task. |
+| `getsentry/junior` PR #532 | High | Provides a concrete testing architecture cleanup, including test-layer selection, mock boundary hardening, duplication removal, and Bugbot findings around stale test scripts and unwired adapters. | Adapted into a repo-generic test-quality policy. |
+| `/Users/dcramer/src/junior` branch `origin/codex/testing-architecture-cleanup` testing docs | High | Supplies source examples from `specs/testing.md`, `specs/integration-testing.md`, `specs/component-testing.md`, `specs/unit-testing.md`, `specs/eval-testing.md`, and `policies/test-adapters.md`. | Generalized into bundled policy guidance without carrying Junior-specific paths or commands into runtime. |
 | Existing `skills/code-cleanup` | High | Provides local review-skill structure, review-only boundary, and source/spec conventions. | Used as contrast: `iterate` can edit and loops during implementation. |
 | Existing `skills/thermo-nuclear-code-quality-review` | Medium | Provides strict maintainability review prior art. | Used as contrast: `iterate` is lower-prose, broader implementation readiness, and advisor-loop oriented. |
 | Sidecar review of draft `iterate` skill | High | Identified missing trigger boundaries, no-edit advisor contract, severity semantics, anti-loop rules, dirty-worktree handling, and generated/dependency checks. | Incorporated into runtime rules, loop contract, prompt schema, `SPEC.md`, and coverage notes. |
@@ -38,8 +41,8 @@
 | --- | --- |
 | Source intent | Make agents coordinate subagent review for each implementation slice, judge findings, fix valid concerns, and repeat until the code is ready. |
 | Local target | A portable skill under `skills/iterate/` that works in consuming repos such as `~/src/junior`. |
-| Fidelity boundary | Preserve mandatory subagent review, per-policy subagents, coordinator validity judgment, useful independent verification, review-fix-repeat behavior, precision/low-prose output, evidence-labeled findings, specs/docs, behavior, bundled policy, dead-code, delayering, type, generated/dependency, test, and verification checks. |
-| Local replacement | Converted narrative instructions into a compact workflow, enumerated review tasks, advisor prompts, stopping rule, bundled policy references, and minimal handoff contract. |
+| Fidelity boundary | Preserve mandatory subagent review, per-policy subagents, coordinator validity judgment, useful independent verification, review-fix-repeat behavior, precision/low-prose output, evidence-labeled findings, specs/docs, behavior, bundled policy, dead-code, delayering, type, generated/dependency, test-quality, and verification checks. |
+| Local replacement | Converted narrative instructions into a compact workflow, enumerated review tasks, advisor prompts, stopping rule, bundled policy references, minimal handoff contract, and a dedicated test-quality policy. |
 | Omitted material | No provider-specific subagent API names, scripts, or references; runtimes vary and v1 behavior is short enough inline. |
 | Rights and attribution | User-authored seed prompt and local repo sources; no external licensed text bundled. |
 
@@ -53,6 +56,9 @@
 | Secondary shape: mandatory review subagents | adopted | The user explicitly requested a subagent for every review task; the main agent enumerates review tasks, spawns one subagent per task, and coordinates finding validity. |
 | Bundled code-comments policy | adopted | User requested pulling this policy into the skill rather than relying on in-repo policies. |
 | Bundled interface-design policy | adopted | User requested pulling this policy into the skill rather than relying on in-repo policies. |
+| Bundled test-quality policy | adopted | User requested replacing the weak generic test reviewer with repo-generic policy that discourages over-mocking, weak unit-test defaults, duplication, and telemetry assertions. |
+| Generic tests/fixtures review task | replaced | Test quality needs policy-grade layer and mock analysis; the old task was too broad and encouraged "coverage match" rather than better test architecture. |
+| Non-policy review task wording | narrowed | Policy reviews are listed in the loop, so spawn wording now prevents accidentally running bundled policy subagents twice. |
 | Bundled policy template | adopted | User requested keeping policy references concise; template gives the maintenance shape. |
 | Skill README for bundled references | adopted | User requested moving bundled-reference inventory and maintenance notes out of `SKILL.md`. |
 | Independent verification advisor | adopted, conditional | Gerrit and GitHub prior art separate review judgment from verification/status checks; make this conditional so trivial slices do not pay boilerplate overhead. |
@@ -60,7 +66,7 @@
 | Evidence labels | adopted | Conventional Comments and SARIF prior art both favor structured labels plus locations; evidence labels make concerns reviewable without adding prose. |
 | Anti-loop stop rule | adopted | Stop after repeated concerns or 3 cycles without material progress; do not stop merely because a fixed cycle count was reached. |
 | Review-only advisor contract | adopted | Keeps the main agent accountable for applying or rejecting findings. |
-| Discrete review tasks plus per-policy review | adopted | Behavior/spec, specs/docs, repo instructions, dead code, delayering, types, tests, generated/dependencies, validation, and bundled policies each get their own subagent. |
+| Discrete review tasks plus per-policy review | adopted | Behavior/spec, specs/docs, repo instructions, dead code, delayering, types, generated/dependencies, validation, and bundled policies each get their own subagent. |
 | Coordinator role | adopted | The main agent must evaluate validity of subagent findings instead of treating advisor output as authoritative. |
 | Cycle output | rejected | Per-cycle logs are mostly bookkeeping; the skill should track loops internally and report only validation plus residual material concerns. |
 | Scripts | rejected | No deterministic parsing or automation is required for v1. |
@@ -81,11 +87,12 @@
 | Output contract | Minimal handoff status and residual material concerns only. | covered |
 | Evidence labels | Evidence section and reviewer output schema. | covered |
 | Independent verification | Conditional verification advisor prompt and handoff status. | covered |
-| Policy compliance | `references/code-comments.md`, `references/interface-design.md`, and policy subagent prompt. | covered |
+| Policy compliance | `references/code-comments.md`, `references/interface-design.md`, `references/test-quality.md`, and policy subagent prompt. | covered |
 | Specs/docs | Advisor checklist and slice definition. | covered |
 | Dead code and delayering | Advisor checklist and fix categories. | covered |
 | Type quality | Advisor checklist. | covered |
 | Generated/dependency drift | Slice definition and advisor checklist. | covered |
+| Test quality | `references/test-quality.md`, policy subagent prompt, and validation advisor. | covered |
 | Verification | Validate step and final output. | covered |
 | Portability | Skill-root-local files and no provider-specific tool names. | covered |
 
@@ -99,6 +106,7 @@ Should trigger:
 - "iterate after each incremental code change"
 - "check specs, policies, dead code, delayering, and types before final handoff"
 - "review this slice with the bundled code-comments and interface-design policies"
+- "run iterate and check whether the tests are over-mocked or duplicated"
 
 Should not trigger:
 - "review this branch for cleanup"
@@ -119,7 +127,7 @@ Final description:
 - No automated semantic validator exists for advisor quality or concern materiality.
 - Subagent behavior differs by consuming agent runtime; runtimes without subagents cannot run this skill as specified.
 - Evidence label taxonomy is intentionally small and may need revision after real use in `~/src/junior`.
-- Only two bundled policies are included so far: code comments and interface design.
+- Test-quality policy is generalized from one large PR and should be tuned against more repos after real use.
 
 ## Changelog
 
@@ -130,3 +138,4 @@ Final description:
 - 2026-06-08: Added bundled policy references for code comments and interface design, added a policy template reference, and changed review flow to discrete review tasks plus one subagent per bundled review policy.
 - 2026-06-08: Split the broad general implementation review into separate subagent tasks for behavior/spec, specs/docs, repo instructions, dead code, delayering, type boundaries, tests/fixtures, generated/dependencies, and validation.
 - 2026-06-08: Removed `SKILL.md` H1, cross-skill references, and bundled/maintenance inventory; added skill README for that context.
+- 2026-06-08: Added bundled test-quality policy from Junior PR #532 lessons and replaced the generic tests/fixtures review task with a policy subagent.

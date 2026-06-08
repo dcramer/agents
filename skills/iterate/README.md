@@ -8,6 +8,7 @@ Runtime instructions live in `SKILL.md`. Maintenance contract lives in `SPEC.md`
 | --- | --- |
 | `references/code-comments.md` | Adapted from `/Users/dcramer/src/junior/policies/code-comments.md`. |
 | `references/interface-design.md` | Adapted from `/Users/dcramer/src/junior/policies/interface-design.md`. |
+| `references/test-quality.md` | Adapted from `getsentry/junior` PR #532 and testing architecture policy sources. |
 
 `iterate` spawns one policy subagent per bundled review policy.
 

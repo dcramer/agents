@@ -11,7 +11,7 @@ After each meaningful implementation slice, coordinate subagent review, validate
 - Preserve unrelated user changes. Do not revert unrelated dirty-worktree files.
 - Use a no-edit subagent for every review task. If subagents are unavailable, stop and report that `iterate` cannot run as specified.
 - Enumerate review tasks before spawning subagents.
-- Spawn one subagent for each review task listed in the loop.
+- Spawn one subagent for each non-policy review task listed in the loop.
 - Spawn one additional subagent per bundled review policy.
 - Act as coordinator: judge subagent findings for validity, reject weak findings, decide accepted/deferred findings, and implement accepted fixes.
 - Fix accepted `blocker`, `high`, and local intent-preserving `medium` concerns.
@@ -46,19 +46,19 @@ Use changed-code `path:line` when available. For missing artifacts or validation
 ## Loop
 
 1. Snapshot intent, diff/base, changed files, repo instructions, relevant specs/docs, generated/lockfile/dependency changes, validation commands, and intentional tradeoffs.
-2. Enumerate review tasks:
+2. Enumerate review tasks and bundled policy reviews:
    - behavior/spec review: request/spec behavior, edge paths, failure paths, and user-visible contracts
    - specs/docs review: required specs, README, changelog, API docs, or generated docs changed with behavior
    - repo instructions review: repo instructions and local conventions are followed
    - dead code review: obsolete branches, unused helpers, compatibility leftovers, and deleted/replaced paths are cleaned up
    - delayering review: unnecessary wrappers, flags, adapters, broad abstractions, indirection, and ownership leaks are removed
    - type-boundary review: types, casts, nullable boundaries, `any`/`unknown`, and public/internal contracts are strong
-   - tests/fixtures review: tests, fixtures, snapshots, and coverage match changed behavior
    - generated/dependency review: generated artifacts, schemas, migrations, lockfiles, package manifests, and dependency additions are necessary and consistent
    - validation review: available checks match the touched files and behavior
    - code-comments policy review: `references/code-comments.md`
    - interface-design policy review: `references/interface-design.md`
-3. Spawn one no-edit subagent per review task. Give policy subagents only the relevant bundled policy reference plus the slice context.
+   - test-quality policy review: `references/test-quality.md`
+3. Spawn one no-edit subagent per non-policy review task and one policy subagent per bundled policy. Give policy subagents only the relevant bundled policy reference plus the slice context.
 4. Coordinate findings: accept valid material concerns, reject invalid concerns with evidence, defer only with a concrete blocker.
 5. Fix accepted concerns that preserve intent.
 6. Run the smallest relevant tests, type checks, linters, builds, schema checks, or generated-artifact checks.
@@ -94,7 +94,7 @@ If no material concerns: none
 ```markdown
 Review this implementation slice against exactly one bundled policy. Review only. Do not edit. Return findings only.
 
-Policy reference: <references/code-comments.md or references/interface-design.md>
+Policy reference: <references/code-comments.md, references/interface-design.md, or references/test-quality.md>
 Policy text:
 <policy text>
 
