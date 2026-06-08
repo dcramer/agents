@@ -27,6 +27,10 @@ source = "dcramer/agents"
 [[skills]]
 name = "thermo-nuclear-code-quality-review"
 source = "dcramer/agents"
+
+[[skills]]
+name = "iterate"
+source = "dcramer/agents"
 ```
 
 Refresh installed skills after changes:
@@ -46,6 +50,7 @@ npx @sentry/dotagents list
 - `skills/` contains reusable agent skills.
 - `skills/code-cleanup/` reviews branch changes for simplification, reliability, policy compliance, and verification.
 - `skills/thermo-nuclear-code-quality-review/` runs an unusually strict maintainability review for abstraction quality, giant files, and spaghetti-condition growth.
+- `skills/iterate/` runs an incremental implementation review-fix-verify loop with evidence-labeled concerns and optional independent verification.
 
 ## Skill Format
 
