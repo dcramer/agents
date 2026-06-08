@@ -4,11 +4,14 @@ Personal agent assets managed with dotagents. The skill source repo is `dcramer/
 
 ## Use These Skills
 
+### dotagents
+
 From a repo where you want the skills installed:
 
 ```bash
 npx @sentry/dotagents init
-npx @sentry/dotagents add dcramer/agents code-cleanup
+npx @sentry/dotagents add dcramer/agents iterate
+npx @sentry/dotagents add dcramer/agents thermo-nuclear-code-quality-review
 npx @sentry/dotagents install
 ```
 
@@ -21,16 +24,27 @@ version = 1
 agents = ["codex", "claude", "cursor"]
 
 [[skills]]
-name = "code-cleanup"
-source = "dcramer/agents"
-
-[[skills]]
 name = "thermo-nuclear-code-quality-review"
 source = "dcramer/agents"
 
 [[skills]]
 name = "iterate"
 source = "dcramer/agents"
+```
+
+### skills
+
+You can also install this repo's skills with the `skills` CLI:
+
+```bash
+npx skills add dcramer/agents --skill iterate
+npx skills add dcramer/agents --skill thermo-nuclear-code-quality-review
+```
+
+Install every skill in this repo:
+
+```bash
+npx skills add dcramer/agents --all
 ```
 
 Refresh installed skills after changes:
@@ -48,7 +62,6 @@ npx @sentry/dotagents list
 ## Structure
 
 - `skills/` contains reusable agent skills.
-- `skills/code-cleanup/` reviews branch changes for simplification, reliability, policy compliance, and verification.
 - `skills/thermo-nuclear-code-quality-review/` runs an unusually strict maintainability review for abstraction quality, giant files, and spaghetti-condition growth.
 - `skills/iterate/` runs an incremental implementation review-fix-verify loop with evidence-labeled concerns and optional independent verification.
 

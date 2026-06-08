@@ -11,7 +11,6 @@
 | Need | File |
 |------|------|
 | Repo purpose and installation entrypoint | `README.md` |
-| Code cleanup skill contract | `skills/code-cleanup/SPEC.md` |
 
 ## Conventions
 - Keep runtime skill guidance portable; use skill-root-relative paths.
