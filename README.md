@@ -1,20 +1,20 @@
 # agents
 
-Personal agent assets managed with dotagents. The skill source repo is `dcramer/agents`; dotagents documentation lives at `https://dotagents.sentry.dev`.
+Personal agent assets managed with dotagents. The skill source repo is `dcramer/agents`; dotagents documentation lives at [dotagents.sentry.dev](https://dotagents.sentry.dev).
 
 ## Use These Skills
 
 ### dotagents
 
-From a repo where you want the skills installed:
+Install skills into your user-level agent configuration:
 
 ```bash
-npx @sentry/dotagents init
-npx @sentry/dotagents add dcramer/agents iterate
-npx @sentry/dotagents install
+npx @sentry/dotagents init --user
+npx @sentry/dotagents add --user dcramer/agents iterate
+npx @sentry/dotagents install --user
 ```
 
-`dotagents init` creates `agents.toml` for the consuming repo. `dotagents add` records this repo as the skill source, and `dotagents install` installs declared skills into the local agent skill directory.
+`dotagents init --user` creates a user-level `agents.toml`. `dotagents add --user` records this repo as the skill source, and `dotagents install --user` installs declared skills into the user agent skill directory.
 
 Example `agents.toml` entry:
 
@@ -39,18 +39,6 @@ Install every skill in this repo:
 
 ```bash
 npx skills add dcramer/agents --all
-```
-
-Refresh installed skills after changes:
-
-```bash
-npx @sentry/dotagents install
-```
-
-List installed skills:
-
-```bash
-npx @sentry/dotagents list
 ```
 
 ## Structure
