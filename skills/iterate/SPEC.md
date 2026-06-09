@@ -2,13 +2,14 @@
 
 ## Intent
 
-`iterate` is a reusable implementation hardening loop. It runs while actively implementing, after each meaningful code slice, enumerates review tasks, delegates each task to a no-edit subagent, coordinates validity of the subagents' findings, fixes accepted material concerns, validates the result, asks a separate verification advisor only when it adds signal, and repeats until blocker/high/medium concerns are gone.
+`iterate` is a reusable implementation hardening loop. It runs while actively implementing, after each meaningful code slice, snapshots the core user or PR intent, enumerates review tasks, delegates each task to a no-edit subagent, coordinates validity of the subagents' findings, fixes accepted material concerns only when the smallest fix preserves that core intent, validates the result, asks a separate verification advisor only when it adds signal, and repeats until in-scope blocker/high/medium concerns are gone.
 
 ## Scope
 
 In scope:
 - incremental feature or fix implementation slices
 - current-diff review and directly related files
+- behavior-preserving cleanup, delayering, type tightening, docs, tests, and dead-code removal that support the current slice
 - mandatory subagent-backed advisory review for every enumerated review task
 - bundled policy review for code comments, interface design, and test quality
 - independent verification advice for risky slices, ambiguous validation, or final readiness checks
@@ -20,6 +21,8 @@ Out of scope:
 - review-only branch audits with no implementation authority
 - full PR CI iteration or external reviewer response loops
 - broad rewrites unrelated to the current slice
+- behavior changes outside the core user or PR intent
+- adjacent hardening, compatibility changes, API policy changes, permission semantics changes, validation normalization, parameter precedence changes, serialization changes, or default changes not explicitly requested and not required to fix a regression introduced by the slice
 - aesthetic-only style feedback unless required by a bundled policy
 - product requirement changes without user approval
 - non-code brainstorming or generic iteration
@@ -32,9 +35,9 @@ Out of scope:
 
 ## Runtime Contract
 
-- Required first actions: inspect status, diff/base, repo instructions, relevant specs/docs, relevant tests, generated artifacts, lockfiles, and bundled policy references.
+- Required first actions: inspect status, diff/base, repo instructions, relevant specs/docs, relevant tests, generated artifacts, lockfiles, bundled policy references, and the core intent including intended behavior changes, compatibility expectations, touched areas, and known non-goals.
 - Required outputs: no cycle log; final status with validation run, independent verification result when used, and residual material concerns only.
-- Non-negotiable constraints: enumerate review tasks across behavior/spec, specs/docs, repo instructions, dead code, delayering, type boundaries, generated/dependencies, validation, and bundled policies; use one review-only subagent per non-policy review task and one policy subagent per bundled policy; stop if subagents are unavailable; coordinate validity instead of accepting findings automatically; use a separate verification advisor only when it adds signal; require evidence labels and concrete locators for concerns; apply only high-confidence accepted material concerns; preserve unrelated user changes; repeat after material edits; avoid unbounded loops; and do not stop with unresolved blocker/high/medium concerns unless blocked or explicitly deferred.
+- Non-negotiable constraints: enumerate review tasks across behavior/spec, specs/docs, repo instructions, dead code, delayering, type boundaries, generated/dependencies, validation, and bundled policies; use one review-only subagent per non-policy review task and one policy subagent per bundled policy; stop if subagents are unavailable; coordinate validity instead of accepting findings automatically; use a separate verification advisor only when it adds signal; require evidence labels and concrete locators for concerns; apply only high-confidence accepted material concerns whose smallest fix preserves core intent; defer valid concerns that require out-of-intent behavior changes; preserve unrelated user changes; repeat after material edits; avoid unbounded loops; and do not stop with unresolved in-scope blocker/high/medium concerns unless blocked or explicitly deferred.
 - Expected bundled files loaded at runtime: `SKILL.md`, `references/code-comments.md`, `references/interface-design.md`, and `references/test-quality.md`.
 
 ## Source And Evidence Model
@@ -43,6 +46,7 @@ Authoritative sources:
 - the user's seed prompt
 - local repo instructions
 - bundled policy references, including test-quality policy
+- the core user or PR intent and explicit non-goals
 - changed code, related specs/docs, and tests
 - generated artifacts, lockfiles, schemas, and dependency manifests
 - validation command output

@@ -117,7 +117,7 @@ Should not trigger:
 
 Final description:
 
-> Use while implementing code changes, after a meaningful slice, to coordinate mandatory subagent review/fix/verify loops with evidence-labeled findings and optional independent verification. Do not use for standalone reviews, brainstorming, or non-code iteration.
+> Use while implementing code changes, after a meaningful slice, to coordinate subagent review/fix/verify loops that preserve the core user or PR intent. Fix regressions, explicit requirement mismatches, validation gaps, and behavior-preserving cleanup; report unrelated improvements or out-of-intent behavior changes instead. Do not use for standalone reviews, brainstorming, or non-code iteration.
 
 ## Gaps
 
@@ -138,3 +138,4 @@ Final description:
 - 2026-06-08: Removed `SKILL.md` H1, cross-skill references, and bundled/maintenance inventory; added skill README for that context.
 - 2026-06-08: Added bundled test-quality policy from Junior PR #532 lessons and replaced the generic tests/fixtures review task with a policy subagent.
 - 2026-06-09: Tightened the test-quality policy to prohibit default assertions on logs, Sentry, tracing, metrics, analytics, or telemetry unless instrumentation output is the explicit contract under test.
+- 2026-06-09: Added a core-intent behavior gate so subagent findings and fixes may clean up locally but must not introduce out-of-intent behavior changes, adjacent hardening, API policy changes, or unrelated cleanup.

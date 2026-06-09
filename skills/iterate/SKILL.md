@@ -1,20 +1,26 @@
 ---
 name: iterate
-description: Use while implementing code changes, after a meaningful slice, to coordinate mandatory subagent review/fix/verify loops with evidence-labeled findings and optional independent verification. Do not use for standalone reviews, brainstorming, or non-code iteration.
+description: Use while implementing code changes, after a meaningful slice, to coordinate subagent review/fix/verify loops that preserve the core user or PR intent. Fix regressions, explicit requirement mismatches, validation gaps, and behavior-preserving cleanup; report unrelated improvements or out-of-intent behavior changes instead. Do not use for standalone reviews, brainstorming, or non-code iteration.
 ---
 
-After each meaningful implementation slice, coordinate subagent review, validate accepted findings, fix what is valid, and repeat until the slice is ready.
+After each meaningful implementation slice, coordinate subagent review, validate accepted findings, fix only what preserves the core intent, and repeat until the slice is ready.
 
 ## Contract
 
 - Scope review to the current diff and directly related files.
+- Snapshot the core intent before review: requested behavior, intended behavior changes, compatibility expectations, touched areas, and known non-goals.
+- Preserve the core user or PR intent. Do not introduce behavior changes outside that intent.
+- Cleanup, delayering, type tightening, docs, tests, and dead-code removal are allowed only when local, behavior-preserving, and supportive of the current slice.
+- Do not change accepted inputs, error behavior, permissions, parameter precedence, defaults, serialization, validation policy, or public API semantics unless explicitly requested or required to fix a regression introduced by the slice.
+- Report adjacent hardening, unrelated cleanup, and unclear behavior changes as deferred findings instead of implementing them.
 - Preserve unrelated user changes. Do not revert unrelated dirty-worktree files.
 - Use a no-edit subagent for every review task. If subagents are unavailable, stop and report that `iterate` cannot run as specified.
 - Enumerate review tasks before spawning subagents.
 - Spawn one subagent for each non-policy review task listed in the loop.
 - Spawn one additional subagent per bundled review policy.
 - Act as coordinator: judge subagent findings for validity, reject weak findings, decide accepted/deferred findings, and implement accepted fixes.
-- Fix accepted `blocker`, `high`, and local intent-preserving `medium` concerns.
+- Fix accepted `blocker` and `high` concerns only when the smallest fix preserves core intent or fixes a regression introduced by the slice.
+- Fix `medium` concerns only when local, behavior-preserving, and not a policy/API/compatibility change.
 - Reject vague, preference-only, or evidence-free concerns.
 - Do not loop for `low` findings only.
 - Run targeted validation after fixes.
@@ -28,8 +34,8 @@ After each meaningful implementation slice, coordinate subagent review, validate
 
 Severity:
 - `blocker`: must fix before proceeding.
-- `high`: fix unless impossible without changing intent.
-- `medium`: fix when local and intent-preserving.
+- `high`: fix when the smallest fix preserves core intent.
+- `medium`: fix when local, behavior-preserving, and supportive of the current slice.
 - `low`: optional; do not repeat solely for this.
 
 Evidence labels:
@@ -45,7 +51,7 @@ Use changed-code `path:line` when available. For missing artifacts or validation
 
 ## Loop
 
-1. Snapshot intent, diff/base, changed files, repo instructions, relevant specs/docs, generated/lockfile/dependency changes, validation commands, and intentional tradeoffs.
+1. Snapshot core intent, intended behavior changes, non-goals, diff/base, changed files, repo instructions, relevant specs/docs, generated/lockfile/dependency changes, validation commands, and intentional tradeoffs.
 2. Enumerate review tasks and bundled policy reviews:
    - behavior/spec review: request/spec behavior, edge paths, failure paths, and user-visible contracts
    - specs/docs review: required specs, README, changelog, API docs, or generated docs changed with behavior
@@ -59,13 +65,13 @@ Use changed-code `path:line` when available. For missing artifacts or validation
    - interface-design policy review: `references/interface-design.md`
    - test-quality policy review: `references/test-quality.md`
 3. Spawn one no-edit subagent per non-policy review task and one policy subagent per bundled policy. Give policy subagents only the relevant bundled policy reference plus the slice context.
-4. Coordinate findings: accept valid material concerns, reject invalid concerns with evidence, defer only with a concrete blocker.
-5. Fix accepted concerns that preserve intent.
+4. Coordinate findings: accept valid material concerns only when their smallest fix preserves core intent; reject invalid concerns with evidence; defer valid concerns that require out-of-intent behavior changes, adjacent hardening, unrelated cleanup, or unclear intent.
+5. Fix accepted concerns that preserve core intent.
 6. Run the smallest relevant tests, type checks, linters, builds, schema checks, or generated-artifact checks.
 7. Ask a separate subagent verification advisor only when it adds signal.
 8. Repeat after material edits.
 
-Stop when no `blocker`/`high`/`medium` concerns remain and targeted validation passes or has explicit blockers. Stop and report residuals if the same concern repeats twice, 3 cycles pass without new material progress, or fixing requires clarification, broad redesign, risky unrelated edits, or changed user intent.
+Stop when no in-scope `blocker`/`high`/`medium` concerns remain and targeted validation passes or has explicit blockers. Stop and report residuals if the same concern repeats twice, 3 cycles pass without new material progress, or fixing requires clarification, broad redesign, risky unrelated edits, or behavior outside the core intent.
 
 ## General Review Task Prompt
 
@@ -82,6 +88,12 @@ Repo instructions checked: <paths>
 Specs/docs checked: <paths or none>
 Validation: <commands and results or not run>
 Intentional tradeoffs: <notes or none>
+
+Behavior guard:
+- Return findings only when the smallest fix preserves the core intent, implements the requested behavior, or fixes a regression introduced by this slice.
+- Do not recommend broader hardening, API compatibility changes, permission changes, validation normalization, parameter precedence changes, abstractions, or cleanup unless required by the user goal or directly caused by the diff.
+- Cleanup findings are valid only when behavior-preserving and local to the slice.
+- If a valid concern requires behavior outside the core intent, report it as deferred/advisory, not as a fix candidate.
 
 Output:
 - [severity][evidence:<label[,label]> <locator>] path:line - concern. impact: <impact>. fix: <smallest change>.
@@ -105,6 +117,12 @@ Changed files: <paths>
 Repo instructions checked: <paths>
 Intentional tradeoffs: <notes or none>
 
+Behavior guard:
+- Return findings only when the smallest fix preserves the core intent, implements the requested behavior, or fixes a regression introduced by this slice.
+- Do not recommend broader hardening, API compatibility changes, permission changes, validation normalization, parameter precedence changes, abstractions, or cleanup unless required by the user goal or directly caused by the diff.
+- Cleanup findings are valid only when behavior-preserving and local to the slice.
+- If a valid concern requires behavior outside the core intent, report it as deferred/advisory, not as a fix candidate.
+
 Output:
 - [severity][evidence:policy <policy-reference>] path:line - concern. impact: <impact>. fix: <smallest change>.
 
@@ -123,6 +141,7 @@ Validation: <commands and results or not run>
 Deferred findings: <findings with reasons or none>
 
 Check:
+- final diff preserves core intent and does not introduce out-of-intent behavior changes
 - validation commands match changed behavior and touched files
 - required test/type/lint/build/schema/generated/doc/dependency checks ran or have explicit blockers
 - deferred concerns have concrete evidence and a valid reason
@@ -141,3 +160,4 @@ Report only:
 - validation commands/results
 - independent verification result, only if run or skipped for a non-obvious reason
 - residual accepted or deferred `blocker`/`high`/`medium` concerns, if any
+- deferred adjacent improvements or unclear behavior changes, if any
