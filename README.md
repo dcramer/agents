@@ -10,7 +10,7 @@ Install skills into your user-level agent configuration:
 
 ```bash
 npx @sentry/dotagents init --user
-npx @sentry/dotagents add --user dcramer/agents iterate
+npx @sentry/dotagents add --user dcramer/agents garfield
 npx @sentry/dotagents install --user
 ```
 
@@ -23,7 +23,7 @@ version = 1
 agents = ["codex", "claude", "cursor"]
 
 [[skills]]
-name = "iterate"
+name = "garfield"
 source = "dcramer/agents"
 ```
 
@@ -32,7 +32,7 @@ source = "dcramer/agents"
 You can also install this repo's skills with the `skills` CLI:
 
 ```bash
-npx skills add dcramer/agents --skill iterate
+npx skills add dcramer/agents --skill garfield
 ```
 
 Install every skill in this repo:
@@ -44,7 +44,9 @@ npx skills add dcramer/agents --all
 ## Structure
 
 - `skills/` contains reusable agent skills.
-- `skills/iterate/` runs an incremental implementation review-fix-verify loop with evidence-labeled concerns and optional independent verification.
+- `skills/garfield/` runs an incremental implementation review-fix-verify loop with evidence-labeled concerns and optional independent verification.
+
+The implementation loop is named `garfield` instead of a generic name like `iterate` so it stays unique across personal and shared skill registries and avoids conflicts with similarly named workflow skills.
 
 ## Skill Format
 

@@ -1,8 +1,8 @@
-# Iterate Specification
+# Garfield Specification
 
 ## Intent
 
-`iterate` is a reusable implementation hardening loop. It runs while actively implementing, after each meaningful code slice, snapshots the core user or PR intent, enumerates review tasks, delegates each task to a no-edit subagent, coordinates validity of the subagents' findings, fixes accepted material concerns only when the smallest fix preserves that core intent, validates the result, asks a separate verification advisor only when it adds signal, and repeats until in-scope blocker/high/medium concerns are gone.
+`garfield` is a reusable implementation hardening loop. It runs while actively implementing, after each meaningful code slice, snapshots the core user or PR intent, enumerates review tasks, delegates each task to a no-edit subagent, coordinates validity of the subagents' findings, fixes accepted material concerns only when the smallest fix preserves that core intent, validates the result, asks a separate verification advisor only when it adds signal, and repeats until in-scope blocker/high/medium concerns are gone.
 
 ## Scope
 
@@ -30,7 +30,7 @@ Out of scope:
 ## Users And Trigger Context
 
 - Primary users: agents implementing code who need a tight subagent-backed hardening loop before handoff.
-- Common user requests: "run iterate on this feature slice", "iterate after each code slice", "review/fix/repeat this implementation", "use a subagent to find concerns before you finish".
+- Common user requests: "run garfield on this feature slice", "use garfield after each code slice", "review/fix/repeat this implementation", "use a subagent to find concerns before you finish".
 - Should not trigger for: standalone code review requests, PR CI failure loops, harsh maintainability audits, general brainstorming, documentation-only explanation, non-code iteration, or requests to create/update skills.
 
 ## Runtime Contract

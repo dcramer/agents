@@ -1,4 +1,4 @@
-# Iterate
+# Garfield
 
 Runtime instructions live in `SKILL.md`. Maintenance contract lives in `SPEC.md`. Provenance and decisions live in `SOURCES.md`.
 
@@ -11,7 +11,7 @@ Runtime instructions live in `SKILL.md`. Maintenance contract lives in `SPEC.md`
 | `references/interface-design.md` | Adapted from `/Users/dcramer/src/junior/policies/interface-design.md`. |
 | `references/test-quality.md` | Adapted from `getsentry/junior` PR #532 and testing architecture policy sources. |
 
-`iterate` spawns one policy subagent per bundled review policy.
+`garfield` spawns one policy subagent per bundled review policy.
 
 ## Maintenance References
 

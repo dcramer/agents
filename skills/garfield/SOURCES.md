@@ -1,11 +1,11 @@
-# Iterate Sources
+# Garfield Sources
 
 ## Source Inventory
 
 | Source | Trust | Contribution | Usage |
 | --- | --- | --- | --- |
 | User seed prompt in setup request | High | Defines repeat-after-each-slice behavior, subagent advisor requirement, precision preference, and concern categories. | Adapted into runtime loop, advisor prompts, and review checklist. |
-| Local `AGENTS.md` | High | Defines repo shape, skill file expectations, no hosting config, concise docs, and validation expectations. | Drove `skills/iterate/` layout and concise docs. |
+| Local `AGENTS.md` | High | Defines repo shape, skill file expectations, no hosting config, concise docs, and validation expectations. | Drove `skills/garfield/` layout and concise docs. |
 | Local `README.md` | High | Shows install entrypoint, example `agents.toml`, and skill inventory conventions. | Updated root skill inventory and example. |
 | `/Users/dcramer/src/junior/policies/README.md` | High | Defines policy docs as short repo-wide defaults and says to keep intent, default rules, and exceptions small. | Adapted into `references/policy-template.md`. |
 | `/Users/dcramer/src/junior/policies/policy-template.md` | High | Provides the concise policy file shape. | Adapted into `references/policy-template.md`. |
@@ -15,7 +15,7 @@
 | User implementation-minimalism policy request | High | Defines recurring agent overengineering patterns: excessive guardrails, speculative edge-case handling, fallbacks, and tests for unlikely scenarios. | Adapted into `references/implementation-minimalism.md` and added as a bundled policy subagent. |
 | `getsentry/junior` PR #532 | High | Provides a concrete testing architecture cleanup, including test-layer selection, mock boundary hardening, duplication removal, and Bugbot findings around stale test scripts and unwired adapters. | Adapted into a repo-generic test-quality policy. |
 | `/Users/dcramer/src/junior` branch `origin/codex/testing-architecture-cleanup` testing docs | High | Supplies source examples from `specs/testing.md`, `specs/integration-testing.md`, `specs/component-testing.md`, `specs/unit-testing.md`, `specs/eval-testing.md`, and `policies/test-adapters.md`. | Generalized into bundled policy guidance without carrying Junior-specific paths or commands into runtime. |
-| Sidecar review of draft `iterate` skill | High | Identified missing trigger boundaries, no-edit advisor contract, severity semantics, anti-loop rules, dirty-worktree handling, and generated/dependency checks. | Incorporated into runtime rules, loop contract, prompt schema, `SPEC.md`, and coverage notes. |
+| Sidecar review of draft implementation-loop skill | High | Identified missing trigger boundaries, no-edit advisor contract, severity semantics, anti-loop rules, dirty-worktree handling, and generated/dependency checks. | Incorporated into runtime rules, loop contract, prompt schema, `SPEC.md`, and coverage notes. |
 | [Google Engineering Practices: What to look for in a code review](https://google.github.io/eng-practices/review/reviewer/looking-for.html) | High | Prior art for checking tests, documentation, style authority, maintainability, and avoiding blocking on personal style. | Reinforced test/docs/policy checks and low-severity handling. |
 | [Gerrit Review Labels documentation](https://gerrit-review.googlesource.com/Documentation/config-labels.html) | High | Prior art separating `Code-Review` from `Verified`, where verification means compilation/tests passed. | Drove separate review advisor and verification advisor concepts. |
 | [GitHub protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches) and [pull request reviews](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/about-pull-request-reviews) | High | Prior art for required reviews, stale approvals after new commits, status checks, and most-recent-push approval by someone else. | Reinforced rerun-after-edit behavior and independent verification after material changes. |
@@ -39,7 +39,7 @@
 | Decision | Result |
 | --- | --- |
 | Source intent | Make agents coordinate subagent review for each implementation slice, judge findings, fix valid concerns, and repeat until the code is ready. |
-| Local target | A portable skill under `skills/iterate/` that works in consuming repos such as `~/src/junior`. |
+| Local target | A portable skill under `skills/garfield/` that works in consuming repos such as `~/src/junior`. |
 | Fidelity boundary | Preserve mandatory subagent review, per-policy subagents, coordinator validity judgment, useful independent verification, review-fix-repeat behavior, precision/low-prose output, evidence-labeled findings, specs/docs, behavior, bundled policy, dead-code, delayering, type, generated/dependency, implementation-minimalism, test-quality, and verification checks. |
 | Local replacement | Converted narrative instructions into a compact workflow, enumerated review tasks, advisor prompts, stopping rule, bundled policy references, minimal handoff contract, and dedicated implementation-minimalism and test-quality policies. |
 | Omitted material | No provider-specific subagent API names, scripts, or references; runtimes vary and v1 behavior is short enough inline. |
@@ -100,15 +100,15 @@
 ## Description Optimization
 
 Should trigger:
-- "run iterate on this feature slice"
+- "run garfield on this feature slice"
 - "after implementing this, use a subagent to review and fix concerns"
 - "run an independent verification pass after fixing review concerns"
 - "review/fix/repeat this code change until it is ready"
-- "iterate after each incremental code change"
+- "use garfield after each incremental code change"
 - "check specs, policies, dead code, delayering, and types before final handoff"
 - "review this slice with the bundled code-comments and interface-design policies"
-- "run iterate and check whether the tests are over-mocked or duplicated"
-- "run iterate and flag speculative guardrails, fallbacks, and edge-case tests"
+- "run garfield and check whether the tests are over-mocked or duplicated"
+- "run garfield and flag speculative guardrails, fallbacks, and edge-case tests"
 
 Should not trigger:
 - "review this branch for cleanup"
@@ -134,7 +134,7 @@ Final description:
 
 ## Changelog
 
-- 2026-06-08: Created initial inline `iterate` skill, specification, source record, and root README inventory entry.
+- 2026-06-08: Created initial inline implementation-loop skill, specification, source record, and root README inventory entry.
 - 2026-06-08: Added evidence-labeled concerns and conditional independent verification advisor contract based on prior art review; rejected per-cycle reporting as low-signal bookkeeping.
 - 2026-06-08: Tightened runtime wording around minimal handoff, conditional verification, evidence labels, and anti-loop behavior.
 - 2026-06-08: Made subagent review mandatory for every review task and clarified the main agent's coordinator role for finding validity.
@@ -145,3 +145,4 @@ Final description:
 - 2026-06-09: Tightened the test-quality policy to prohibit default assertions on logs, Sentry, tracing, metrics, analytics, or telemetry unless instrumentation output is the explicit contract under test.
 - 2026-06-09: Added a core-intent behavior gate so subagent findings and fixes may clean up locally but must not introduce out-of-intent behavior changes, adjacent hardening, API policy changes, or unrelated cleanup.
 - 2026-06-15: Added an implementation-minimalism policy to flag speculative guardrails, fallbacks, edge-case handling, and related tests unless required by explicit intent or real boundaries.
+- 2026-06-15: Renamed the skill from `iterate` to `garfield` and added the Garfield the Cat review persona note without changing runtime behavior.
