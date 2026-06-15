@@ -13,6 +13,7 @@ After each meaningful implementation slice, coordinate subagent review, validate
 - Cleanup, delayering, type tightening, docs, tests, and dead-code removal are allowed only when local, behavior-preserving, and supportive of the current slice.
 - Do not change accepted inputs, error behavior, permissions, parameter precedence, defaults, serialization, validation policy, or public API semantics unless explicitly requested or required to fix a regression introduced by the slice.
 - Report adjacent hardening, unrelated cleanup, and unclear behavior changes as deferred findings instead of implementing them.
+- Treat speculative guardrails, fallbacks, edge-case handling, and related tests as deferred unless required by explicit intent, an existing contract, or a real boundary.
 - Preserve unrelated user changes. Do not revert unrelated dirty-worktree files.
 - Use a no-edit subagent for every review task. If subagents are unavailable, stop and report that `iterate` cannot run as specified.
 - Enumerate review tasks before spawning subagents.
@@ -62,6 +63,7 @@ Use changed-code `path:line` when available. For missing artifacts or validation
    - generated/dependency review: generated artifacts, schemas, migrations, lockfiles, package manifests, and dependency additions are necessary and consistent
    - validation review: available checks match the touched files and behavior
    - code-comments policy review: `references/code-comments.md`
+   - implementation-minimalism policy review: `references/implementation-minimalism.md`
    - interface-design policy review: `references/interface-design.md`
    - test-quality policy review: `references/test-quality.md`
 3. Spawn one no-edit subagent per non-policy review task and one policy subagent per bundled policy. Give policy subagents only the relevant bundled policy reference plus the slice context.
@@ -91,7 +93,7 @@ Intentional tradeoffs: <notes or none>
 
 Behavior guard:
 - Return findings only when the smallest fix preserves the core intent, implements the requested behavior, or fixes a regression introduced by this slice.
-- Do not recommend broader hardening, API compatibility changes, permission changes, validation normalization, parameter precedence changes, abstractions, or cleanup unless required by the user goal or directly caused by the diff.
+- Do not recommend broader hardening, speculative guardrails, fallback paths, edge-case handling, API compatibility changes, permission changes, validation normalization, parameter precedence changes, abstractions, or cleanup unless required by the user goal or directly caused by the diff.
 - Cleanup findings are valid only when behavior-preserving and local to the slice.
 - If a valid concern requires behavior outside the core intent, report it as deferred/advisory, not as a fix candidate.
 
@@ -106,7 +108,7 @@ If no material concerns: none
 ```markdown
 Review this implementation slice against exactly one bundled policy. Review only. Do not edit. Return findings only.
 
-Policy reference: <references/code-comments.md, references/interface-design.md, or references/test-quality.md>
+Policy reference: <references/code-comments.md, references/implementation-minimalism.md, references/interface-design.md, or references/test-quality.md>
 Policy text:
 <policy text>
 
@@ -119,7 +121,7 @@ Intentional tradeoffs: <notes or none>
 
 Behavior guard:
 - Return findings only when the smallest fix preserves the core intent, implements the requested behavior, or fixes a regression introduced by this slice.
-- Do not recommend broader hardening, API compatibility changes, permission changes, validation normalization, parameter precedence changes, abstractions, or cleanup unless required by the user goal or directly caused by the diff.
+- Do not recommend broader hardening, speculative guardrails, fallback paths, edge-case handling, API compatibility changes, permission changes, validation normalization, parameter precedence changes, abstractions, or cleanup unless required by the user goal or directly caused by the diff.
 - Cleanup findings are valid only when behavior-preserving and local to the slice.
 - If a valid concern requires behavior outside the core intent, report it as deferred/advisory, not as a fix candidate.
 

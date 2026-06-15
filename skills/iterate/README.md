@@ -7,6 +7,7 @@ Runtime instructions live in `SKILL.md`. Maintenance contract lives in `SPEC.md`
 | Policy | Source |
 | --- | --- |
 | `references/code-comments.md` | Adapted from `/Users/dcramer/src/junior/policies/code-comments.md`. |
+| `references/implementation-minimalism.md` | Adapted from the 2026-06-15 user request to reduce speculative guardrails, fallbacks, edge-case handling, and tests unless required by intent. |
 | `references/interface-design.md` | Adapted from `/Users/dcramer/src/junior/policies/interface-design.md`. |
 | `references/test-quality.md` | Adapted from `getsentry/junior` PR #532 and testing architecture policy sources. |
 

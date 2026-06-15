@@ -12,6 +12,7 @@
 | `/Users/dcramer/src/junior/policies/code-comments.md` | High | Defines when comments/JSDoc are useful and when they are noise. | Vendored into `references/code-comments.md`. |
 | `/Users/dcramer/src/junior/policies/interface-design.md` | High | Defines narrow interface, naming, lifecycle, ownership, and platform-boundary defaults. | Vendored into `references/interface-design.md`. |
 | User test-quality policy request | High | Defines recurring bad agent-test patterns: over-mocking, weak unit defaults, duplication, and default telemetry/logging assertions. | Adapted into `references/test-quality.md` and used to replace the generic tests/fixtures review task. |
+| User implementation-minimalism policy request | High | Defines recurring agent overengineering patterns: excessive guardrails, speculative edge-case handling, fallbacks, and tests for unlikely scenarios. | Adapted into `references/implementation-minimalism.md` and added as a bundled policy subagent. |
 | `getsentry/junior` PR #532 | High | Provides a concrete testing architecture cleanup, including test-layer selection, mock boundary hardening, duplication removal, and Bugbot findings around stale test scripts and unwired adapters. | Adapted into a repo-generic test-quality policy. |
 | `/Users/dcramer/src/junior` branch `origin/codex/testing-architecture-cleanup` testing docs | High | Supplies source examples from `specs/testing.md`, `specs/integration-testing.md`, `specs/component-testing.md`, `specs/unit-testing.md`, `specs/eval-testing.md`, and `policies/test-adapters.md`. | Generalized into bundled policy guidance without carrying Junior-specific paths or commands into runtime. |
 | Sidecar review of draft `iterate` skill | High | Identified missing trigger boundaries, no-edit advisor contract, severity semantics, anti-loop rules, dirty-worktree handling, and generated/dependency checks. | Incorporated into runtime rules, loop contract, prompt schema, `SPEC.md`, and coverage notes. |
@@ -39,8 +40,8 @@
 | --- | --- |
 | Source intent | Make agents coordinate subagent review for each implementation slice, judge findings, fix valid concerns, and repeat until the code is ready. |
 | Local target | A portable skill under `skills/iterate/` that works in consuming repos such as `~/src/junior`. |
-| Fidelity boundary | Preserve mandatory subagent review, per-policy subagents, coordinator validity judgment, useful independent verification, review-fix-repeat behavior, precision/low-prose output, evidence-labeled findings, specs/docs, behavior, bundled policy, dead-code, delayering, type, generated/dependency, test-quality, and verification checks. |
-| Local replacement | Converted narrative instructions into a compact workflow, enumerated review tasks, advisor prompts, stopping rule, bundled policy references, minimal handoff contract, and a dedicated test-quality policy. |
+| Fidelity boundary | Preserve mandatory subagent review, per-policy subagents, coordinator validity judgment, useful independent verification, review-fix-repeat behavior, precision/low-prose output, evidence-labeled findings, specs/docs, behavior, bundled policy, dead-code, delayering, type, generated/dependency, implementation-minimalism, test-quality, and verification checks. |
+| Local replacement | Converted narrative instructions into a compact workflow, enumerated review tasks, advisor prompts, stopping rule, bundled policy references, minimal handoff contract, and dedicated implementation-minimalism and test-quality policies. |
 | Omitted material | No provider-specific subagent API names, scripts, or references; runtimes vary and v1 behavior is short enough inline. |
 | Rights and attribution | User-authored seed prompt and local repo sources; no external licensed text bundled. |
 
@@ -53,6 +54,7 @@
 | Secondary shape: validation loop | adopted | The skill must fix concerns, validate, and repeat until a passing state. |
 | Secondary shape: mandatory review subagents | adopted | The user explicitly requested a subagent for every review task; the main agent enumerates review tasks, spawns one subagent per task, and coordinates finding validity. |
 | Bundled code-comments policy | adopted | User requested pulling this policy into the skill rather than relying on in-repo policies. |
+| Bundled implementation-minimalism policy | adopted | User requested a policy that minimizes speculative guardrails, fallbacks, edge-case handling, and related tests unless they are part of the intent. |
 | Bundled interface-design policy | adopted | User requested pulling this policy into the skill rather than relying on in-repo policies. |
 | Bundled test-quality policy | adopted | User requested replacing the weak generic test reviewer with repo-generic policy that discourages over-mocking, weak unit-test defaults, duplication, and default telemetry/logging assertions. |
 | Generic tests/fixtures review task | replaced | Test quality needs policy-grade layer and mock analysis; the old task was too broad and encouraged "coverage match" rather than better test architecture. |
@@ -85,9 +87,10 @@
 | Output contract | Minimal handoff status and residual material concerns only. | covered |
 | Evidence labels | Evidence section and reviewer output schema. | covered |
 | Independent verification | Conditional verification advisor prompt and handoff status. | covered |
-| Policy compliance | `references/code-comments.md`, `references/interface-design.md`, `references/test-quality.md`, and policy subagent prompt. | covered |
+| Policy compliance | `references/code-comments.md`, `references/implementation-minimalism.md`, `references/interface-design.md`, `references/test-quality.md`, and policy subagent prompt. | covered |
 | Specs/docs | Advisor checklist and slice definition. | covered |
 | Dead code and delayering | Advisor checklist and fix categories. | covered |
+| Implementation minimalism | `references/implementation-minimalism.md`, policy subagent prompt, and core-intent behavior gate. | covered |
 | Type quality | Advisor checklist. | covered |
 | Generated/dependency drift | Slice definition and advisor checklist. | covered |
 | Test quality | `references/test-quality.md`, policy subagent prompt, and validation advisor. | covered |
@@ -105,6 +108,7 @@ Should trigger:
 - "check specs, policies, dead code, delayering, and types before final handoff"
 - "review this slice with the bundled code-comments and interface-design policies"
 - "run iterate and check whether the tests are over-mocked or duplicated"
+- "run iterate and flag speculative guardrails, fallbacks, and edge-case tests"
 
 Should not trigger:
 - "review this branch for cleanup"
@@ -125,6 +129,7 @@ Final description:
 - No automated semantic validator exists for advisor quality or concern materiality.
 - Subagent behavior differs by consuming agent runtime; runtimes without subagents cannot run this skill as specified.
 - Evidence label taxonomy is intentionally small and may need revision after real use in `~/src/junior`.
+- Implementation-minimalism policy is sourced from a user-described failure mode and should be tuned against real accepted/rejected findings after use.
 - Test-quality policy is generalized from one large PR and should be tuned against more repos after real use.
 
 ## Changelog
@@ -139,3 +144,4 @@ Final description:
 - 2026-06-08: Added bundled test-quality policy from Junior PR #532 lessons and replaced the generic tests/fixtures review task with a policy subagent.
 - 2026-06-09: Tightened the test-quality policy to prohibit default assertions on logs, Sentry, tracing, metrics, analytics, or telemetry unless instrumentation output is the explicit contract under test.
 - 2026-06-09: Added a core-intent behavior gate so subagent findings and fixes may clean up locally but must not introduce out-of-intent behavior changes, adjacent hardening, API policy changes, or unrelated cleanup.
+- 2026-06-15: Added an implementation-minimalism policy to flag speculative guardrails, fallbacks, edge-case handling, and related tests unless required by explicit intent or real boundaries.

@@ -11,11 +11,11 @@ In scope:
 - current-diff review and directly related files
 - behavior-preserving cleanup, delayering, type tightening, docs, tests, and dead-code removal that support the current slice
 - mandatory subagent-backed advisory review for every enumerated review task
-- bundled policy review for code comments, interface design, and test quality
+- bundled policy review for code comments, implementation minimalism, interface design, and test quality
 - independent verification advice for risky slices, ambiguous validation, or final readiness checks
 - fixing material concerns found by the review
 - targeted tests, type checks, linters, builds, and explicit validation blockers
-- specs/docs, bundled policy compliance, dead code, delayering, type contracts, generated artifacts, dependency drift, and test quality
+- specs/docs, bundled policy compliance, dead code, delayering, type contracts, generated artifacts, dependency drift, implementation minimalism, and test quality
 
 Out of scope:
 - review-only branch audits with no implementation authority
@@ -37,15 +37,15 @@ Out of scope:
 
 - Required first actions: inspect status, diff/base, repo instructions, relevant specs/docs, relevant tests, generated artifacts, lockfiles, bundled policy references, and the core intent including intended behavior changes, compatibility expectations, touched areas, and known non-goals.
 - Required outputs: no cycle log; final status with validation run, independent verification result when used, and residual material concerns only.
-- Non-negotiable constraints: enumerate review tasks across behavior/spec, specs/docs, repo instructions, dead code, delayering, type boundaries, generated/dependencies, validation, and bundled policies; use one review-only subagent per non-policy review task and one policy subagent per bundled policy; stop if subagents are unavailable; coordinate validity instead of accepting findings automatically; use a separate verification advisor only when it adds signal; require evidence labels and concrete locators for concerns; apply only high-confidence accepted material concerns whose smallest fix preserves core intent; defer valid concerns that require out-of-intent behavior changes; preserve unrelated user changes; repeat after material edits; avoid unbounded loops; and do not stop with unresolved in-scope blocker/high/medium concerns unless blocked or explicitly deferred.
-- Expected bundled files loaded at runtime: `SKILL.md`, `references/code-comments.md`, `references/interface-design.md`, and `references/test-quality.md`.
+- Non-negotiable constraints: enumerate review tasks across behavior/spec, specs/docs, repo instructions, dead code, delayering, type boundaries, generated/dependencies, validation, and bundled policies; use one review-only subagent per non-policy review task and one policy subagent per bundled policy; stop if subagents are unavailable; coordinate validity instead of accepting findings automatically; use a separate verification advisor only when it adds signal; require evidence labels and concrete locators for concerns; apply only high-confidence accepted material concerns whose smallest fix preserves core intent; defer valid concerns that require out-of-intent behavior changes or speculative hardening; preserve unrelated user changes; repeat after material edits; avoid unbounded loops; and do not stop with unresolved in-scope blocker/high/medium concerns unless blocked or explicitly deferred.
+- Expected bundled files loaded at runtime: `SKILL.md`, `references/code-comments.md`, `references/implementation-minimalism.md`, `references/interface-design.md`, and `references/test-quality.md`.
 
 ## Source And Evidence Model
 
 Authoritative sources:
 - the user's seed prompt
 - local repo instructions
-- bundled policy references, including test-quality policy
+- bundled policy references, including implementation-minimalism and test-quality policies
 - the core user or PR intent and explicit non-goals
 - changed code, related specs/docs, and tests
 - generated artifacts, lockfiles, schemas, and dependency manifests
