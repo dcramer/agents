@@ -17,10 +17,11 @@ Garfield is Garfield the Cat doing the review: skeptical, concise, allergic to u
 - Report adjacent hardening, unrelated cleanup, and unclear behavior changes as deferred findings instead of implementing them.
 - Treat speculative guardrails, fallbacks, edge-case handling, and related tests as deferred unless required by explicit intent, an existing contract, or a real boundary.
 - Preserve unrelated user changes. Do not revert unrelated dirty-worktree files.
+- Treat the source app as the active repository being reviewed. Discover source-app policies by sorting `policies/**/*.md` and excluding any `README.md` or `policy-template.md` file under `policies/`.
 - Use a no-edit subagent for every review task. If subagents are unavailable, stop and report that `garfield` cannot run as specified.
 - Enumerate review tasks before spawning subagents.
 - Spawn one subagent for each non-policy review task listed in the loop.
-- Spawn one additional subagent per bundled review policy.
+- Spawn one additional subagent per bundled review policy and per discovered source-app policy.
 - Act as coordinator: judge subagent findings for validity, reject weak findings, decide accepted/deferred findings, and implement accepted fixes.
 - Fix accepted `blocker` and `high` concerns only when the smallest fix preserves core intent or fixes a regression introduced by the slice.
 - Fix `medium` concerns only when local, behavior-preserving, and not a policy/API/compatibility change.
@@ -44,7 +45,7 @@ Severity:
 Evidence labels:
 - `direct`: changed code proves the concern.
 - `spec`: request/spec/contract mismatch.
-- `policy`: bundled policy reference or repo instruction mismatch.
+- `policy`: bundled policy, source-app policy, or repo instruction mismatch.
 - `test`: missing, weak, stale, or incorrect test/fixture/snapshot evidence.
 - `validation`: command output, skipped command, or missing check.
 - `missing`: expected docs, generated artifact, schema, migration, lockfile, or manifest change is absent.
@@ -54,8 +55,8 @@ Use changed-code `path:line` when available. For missing artifacts or validation
 
 ## Loop
 
-1. Snapshot core intent, intended behavior changes, non-goals, diff/base, changed files, repo instructions, relevant specs/docs, generated/lockfile/dependency changes, validation commands, and intentional tradeoffs.
-2. Enumerate review tasks and bundled policy reviews:
+1. Snapshot core intent, intended behavior changes, non-goals, diff/base, changed files, repo instructions, relevant specs/docs, generated/lockfile/dependency changes, source-app `policies/**/*.md`, validation commands, and intentional tradeoffs.
+2. Enumerate review tasks, bundled policy reviews, and discovered source-app policy reviews:
    - behavior/spec review: request/spec behavior, edge paths, failure paths, and user-visible contracts
    - specs/docs review: required specs, README, changelog, API docs, or generated docs changed with behavior
    - repo instructions review: repo instructions and local conventions are followed
@@ -68,7 +69,8 @@ Use changed-code `path:line` when available. For missing artifacts or validation
    - implementation-minimalism policy review: `references/implementation-minimalism.md`
    - interface-design policy review: `references/interface-design.md`
    - test-quality policy review: `references/test-quality.md`
-3. Spawn one no-edit subagent per non-policy review task and one policy subagent per bundled policy. Give policy subagents only the relevant bundled policy reference plus the slice context.
+   - source-app policy reviews: each discovered source-app policy, if any
+3. Spawn one no-edit subagent per non-policy review task and one policy subagent per bundled or source-app policy. Give policy subagents only the relevant policy text plus the slice context.
 4. Coordinate findings: accept valid material concerns only when their smallest fix preserves core intent; reject invalid concerns with evidence; defer valid concerns that require out-of-intent behavior changes, adjacent hardening, unrelated cleanup, or unclear intent.
 5. Fix accepted concerns that preserve core intent.
 6. Run the smallest relevant tests, type checks, linters, builds, schema checks, or generated-artifact checks.
@@ -90,6 +92,7 @@ Diff/base: <base or comparison>
 Changed files: <paths>
 Repo instructions checked: <paths>
 Specs/docs checked: <paths or none>
+Source-app policies checked: <paths or none>
 Validation: <commands and results or not run>
 Intentional tradeoffs: <notes or none>
 
@@ -108,9 +111,10 @@ If no material concerns: none
 ## Policy Review Agent Prompt
 
 ```markdown
-Review this implementation slice against exactly one bundled policy. Review only. Do not edit. Return findings only.
+Review this implementation slice against exactly one policy. Review only. Do not edit. Return findings only.
 
-Policy reference: <references/code-comments.md, references/implementation-minimalism.md, references/interface-design.md, or references/test-quality.md>
+Policy source: <bundled or source-app>
+Policy reference: <policy path>
 Policy text:
 <policy text>
 

@@ -13,6 +13,7 @@
 | `/Users/dcramer/src/junior/policies/interface-design.md` | High | Defines narrow interface, naming, lifecycle, ownership, and platform-boundary defaults. | Vendored into `references/interface-design.md`. |
 | User test-quality policy request | High | Defines recurring bad agent-test patterns: over-mocking, weak unit defaults, duplication, and default telemetry/logging assertions. | Adapted into `references/test-quality.md` and used to replace the generic tests/fixtures review task. |
 | User implementation-minimalism policy request | High | Defines recurring agent overengineering patterns: excessive guardrails, speculative edge-case handling, fallbacks, and tests for unlikely scenarios. | Adapted into `references/implementation-minimalism.md` and added as a bundled policy subagent. |
+| User source-app policies request | High | Requests discovering local `policies/` files in the source application and running each through a policy subagent similar to bundled Garfield policies. | Added runtime source-app policy discovery and one policy subagent per discovered policy file. |
 | `getsentry/junior` PR #532 | High | Provides a concrete testing architecture cleanup, including test-layer selection, mock boundary hardening, duplication removal, and Bugbot findings around stale test scripts and unwired adapters. | Adapted into a repo-generic test-quality policy. |
 | `/Users/dcramer/src/junior` branch `origin/codex/testing-architecture-cleanup` testing docs | High | Supplies source examples from `specs/testing.md`, `specs/integration-testing.md`, `specs/component-testing.md`, `specs/unit-testing.md`, `specs/eval-testing.md`, and `policies/test-adapters.md`. | Generalized into bundled policy guidance without carrying Junior-specific paths or commands into runtime. |
 | Sidecar review of draft implementation-loop skill | High | Identified missing trigger boundaries, no-edit advisor contract, severity semantics, anti-loop rules, dirty-worktree handling, and generated/dependency checks. | Incorporated into runtime rules, loop contract, prompt schema, `SPEC.md`, and coverage notes. |
@@ -57,6 +58,8 @@
 | Bundled implementation-minimalism policy | adopted | User requested a policy that minimizes speculative guardrails, fallbacks, edge-case handling, and related tests unless they are part of the intent. |
 | Bundled interface-design policy | adopted | User requested pulling this policy into the skill rather than relying on in-repo policies. |
 | Bundled test-quality policy | adopted | User requested replacing the weak generic test reviewer with repo-generic policy that discourages over-mocking, weak unit-test defaults, duplication, and default telemetry/logging assertions. |
+| Dynamic source-app policy discovery | adopted | Consuming repos may have their own `policies/` docs; Garfield should review against them without vendoring app-specific rules into the portable skill. |
+| Source-app policy file set | adopted | Discover sorted `policies/**/*.md` files and exclude any `README.md` or `policy-template.md` under `policies/` because they are support docs rather than review policies. |
 | Generic tests/fixtures review task | replaced | Test quality needs policy-grade layer and mock analysis; the old task was too broad and encouraged "coverage match" rather than better test architecture. |
 | Non-policy review task wording | narrowed | Policy reviews are listed in the loop, so spawn wording now prevents accidentally running bundled policy subagents twice. |
 | Bundled policy template | adopted | User requested keeping policy references concise; template gives the maintenance shape. |
@@ -88,6 +91,7 @@
 | Evidence labels | Evidence section and reviewer output schema. | covered |
 | Independent verification | Conditional verification advisor prompt and handoff status. | covered |
 | Policy compliance | `references/code-comments.md`, `references/implementation-minimalism.md`, `references/interface-design.md`, `references/test-quality.md`, and policy subagent prompt. | covered |
+| Source-app policy compliance | Runtime discovery of source-app `policies/**/*.md` and one policy subagent per discovered file. | covered |
 | Specs/docs | Advisor checklist and slice definition. | covered |
 | Dead code and delayering | Advisor checklist and fix categories. | covered |
 | Implementation minimalism | `references/implementation-minimalism.md`, policy subagent prompt, and core-intent behavior gate. | covered |
@@ -128,6 +132,7 @@ Final description:
 - No real positive or negative iteration examples have been captured yet.
 - No automated semantic validator exists for advisor quality or concern materiality.
 - Subagent behavior differs by consuming agent runtime; runtimes without subagents cannot run this skill as specified.
+- Source-app policy discovery uses a simple Markdown glob and may need refinement if consuming repos store policy docs outside `policies/`.
 - Evidence label taxonomy is intentionally small and may need revision after real use in `~/src/junior`.
 - Implementation-minimalism policy is sourced from a user-described failure mode and should be tuned against real accepted/rejected findings after use.
 - Test-quality policy is generalized from one large PR and should be tuned against more repos after real use.
@@ -146,3 +151,4 @@ Final description:
 - 2026-06-09: Added a core-intent behavior gate so subagent findings and fixes may clean up locally but must not introduce out-of-intent behavior changes, adjacent hardening, API policy changes, or unrelated cleanup.
 - 2026-06-15: Added an implementation-minimalism policy to flag speculative guardrails, fallbacks, edge-case handling, and related tests unless required by explicit intent or real boundaries.
 - 2026-06-15: Renamed the skill from `iterate` to `garfield` and added the Garfield the Cat review persona note without changing runtime behavior.
+- 2026-06-15: Added source-app `policies/**/*.md` discovery and one policy subagent per discovered policy.

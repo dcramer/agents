@@ -13,6 +13,12 @@ Runtime instructions live in `SKILL.md`. Maintenance contract lives in `SPEC.md`
 
 `garfield` spawns one policy subagent per bundled review policy.
 
+## Source-App Policies
+
+When a source application has local policy docs, `garfield` also spawns one policy subagent per discovered `policies/**/*.md` file, excluding any `README.md` or `policy-template.md` file under `policies/`.
+
+These files are read from the repository under review at runtime. Do not vendor source-app policies into this skill.
+
 ## Maintenance References
 
 | Reference | Use |

@@ -12,10 +12,11 @@ In scope:
 - behavior-preserving cleanup, delayering, type tightening, docs, tests, and dead-code removal that support the current slice
 - mandatory subagent-backed advisory review for every enumerated review task
 - bundled policy review for code comments, implementation minimalism, interface design, and test quality
+- source-app policy review for discovered `policies/**/*.md` files in the repository under review
 - independent verification advice for risky slices, ambiguous validation, or final readiness checks
 - fixing material concerns found by the review
 - targeted tests, type checks, linters, builds, and explicit validation blockers
-- specs/docs, bundled policy compliance, dead code, delayering, type contracts, generated artifacts, dependency drift, implementation minimalism, and test quality
+- specs/docs, bundled and source-app policy compliance, dead code, delayering, type contracts, generated artifacts, dependency drift, implementation minimalism, and test quality
 
 Out of scope:
 - review-only branch audits with no implementation authority
@@ -23,7 +24,7 @@ Out of scope:
 - broad rewrites unrelated to the current slice
 - behavior changes outside the core user or PR intent
 - adjacent hardening, compatibility changes, API policy changes, permission semantics changes, validation normalization, parameter precedence changes, serialization changes, or default changes not explicitly requested and not required to fix a regression introduced by the slice
-- aesthetic-only style feedback unless required by a bundled policy
+- aesthetic-only style feedback unless required by a bundled or source-app policy
 - product requirement changes without user approval
 - non-code brainstorming or generic iteration
 
@@ -35,9 +36,9 @@ Out of scope:
 
 ## Runtime Contract
 
-- Required first actions: inspect status, diff/base, repo instructions, relevant specs/docs, relevant tests, generated artifacts, lockfiles, bundled policy references, and the core intent including intended behavior changes, compatibility expectations, touched areas, and known non-goals.
+- Required first actions: inspect status, diff/base, repo instructions, relevant specs/docs, relevant tests, generated artifacts, lockfiles, bundled policy references, discovered source-app policies, and the core intent including intended behavior changes, compatibility expectations, touched areas, and known non-goals.
 - Required outputs: no cycle log; final status with validation run, independent verification result when used, and residual material concerns only.
-- Non-negotiable constraints: enumerate review tasks across behavior/spec, specs/docs, repo instructions, dead code, delayering, type boundaries, generated/dependencies, validation, and bundled policies; use one review-only subagent per non-policy review task and one policy subagent per bundled policy; stop if subagents are unavailable; coordinate validity instead of accepting findings automatically; use a separate verification advisor only when it adds signal; require evidence labels and concrete locators for concerns; apply only high-confidence accepted material concerns whose smallest fix preserves core intent; defer valid concerns that require out-of-intent behavior changes or speculative hardening; preserve unrelated user changes; repeat after material edits; avoid unbounded loops; and do not stop with unresolved in-scope blocker/high/medium concerns unless blocked or explicitly deferred.
+- Non-negotiable constraints: enumerate review tasks across behavior/spec, specs/docs, repo instructions, dead code, delayering, type boundaries, generated/dependencies, validation, bundled policies, and discovered source-app policies; use one review-only subagent per non-policy review task and one policy subagent per bundled or discovered source-app policy; stop if subagents are unavailable; coordinate validity instead of accepting findings automatically; use a separate verification advisor only when it adds signal; require evidence labels and concrete locators for concerns; apply only high-confidence accepted material concerns whose smallest fix preserves core intent; defer valid concerns that require out-of-intent behavior changes or speculative hardening; preserve unrelated user changes; repeat after material edits; avoid unbounded loops; and do not stop with unresolved in-scope blocker/high/medium concerns unless blocked or explicitly deferred.
 - Expected bundled files loaded at runtime: `SKILL.md`, `references/code-comments.md`, `references/implementation-minimalism.md`, `references/interface-design.md`, and `references/test-quality.md`.
 
 ## Source And Evidence Model
@@ -46,6 +47,7 @@ Authoritative sources:
 - the user's seed prompt
 - local repo instructions
 - bundled policy references, including implementation-minimalism and test-quality policies
+- discovered source-app policies under `policies/**/*.md`
 - the core user or PR intent and explicit non-goals
 - changed code, related specs/docs, and tests
 - generated artifacts, lockfiles, schemas, and dependency manifests
@@ -58,6 +60,7 @@ Useful improvement sources:
 - commit logs/changelogs: regressions caused by missing docs, weak types, or stale layers
 - issue or PR feedback: recurring reviewer comments about the loop missing concerns
 - validation results: commands that caught or failed to catch slice regressions
+- source-app policy docs: recurring local engineering rules that should be reviewed alongside bundled Garfield policies
 
 Data that must not be stored:
 - secrets
@@ -66,7 +69,7 @@ Data that must not be stored:
 
 ## Reference Architecture
 
-- `SKILL.md` contains: runtime intent, workflow, advisor prompts, concern rubric, review-task enumeration, loop rules, and output contract.
+- `SKILL.md` contains: runtime intent, workflow, advisor prompts, concern rubric, source-app policy discovery, review-task enumeration, loop rules, and output contract.
 - `README.md` contains: bundled policy inventory and maintenance reference notes.
 - `references/` contains: bundled policy references and the policy template.
 - `references/evidence/` contains: future redacted examples if recurring loop failures justify persistent evidence.
@@ -83,13 +86,13 @@ Data that must not be stored:
 ## Known Limitations
 
 - Subagent availability and isolation semantics vary by agent runtime; without subagents, this skill cannot run as specified.
-- Review quality depends on giving each advisor enough diff, spec, bundled policy, and validation context.
+- Review quality depends on giving each advisor enough diff, spec, policy, and validation context.
 - Independent verification can confirm evidence coverage, not prove correctness beyond available commands and inspected artifacts.
 - The skill can over-loop on subjective concerns unless the main agent rejects weak advice explicitly.
 
 ## Maintenance Notes
 
-- Update `SKILL.md` when loop behavior, advisor prompts, evidence labels, stopping rules, concern categories, or output contract changes.
+- Update `SKILL.md` when loop behavior, advisor prompts, evidence labels, stopping rules, concern categories, source-app policy discovery, or output contract changes.
 - Update `references/` when bundled policies change; keep policy references short using `references/policy-template.md`.
 - Update `SOURCES.md` when adding provenance, decisions, gaps, or changelog entries.
 - Update `references/evidence/` only with redacted examples that materially improve future loop behavior.
