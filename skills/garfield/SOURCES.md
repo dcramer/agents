@@ -152,3 +152,4 @@ Final description:
 - 2026-06-15: Added an implementation-minimalism policy to flag speculative guardrails, fallbacks, edge-case handling, and related tests unless required by explicit intent or real boundaries.
 - 2026-06-15: Renamed the skill from `iterate` to `garfield` and added the Garfield the Cat review persona note without changing runtime behavior.
 - 2026-06-15: Added source-app `policies/**/*.md` discovery and one policy subagent per discovered policy.
+- 2026-06-16: Added `agents/openai.yaml` with OpenAI UI metadata; runtime behavior remains defined by `SKILL.md`.

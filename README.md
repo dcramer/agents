@@ -11,6 +11,7 @@ Install skills into your user-level agent configuration:
 ```bash
 npx @sentry/dotagents init --user
 npx @sentry/dotagents add --user dcramer/agents garfield
+npx @sentry/dotagents add --user dcramer/agents garfield-codify
 npx @sentry/dotagents install --user
 ```
 
@@ -25,6 +26,10 @@ agents = ["codex", "claude", "cursor"]
 [[skills]]
 name = "garfield"
 source = "dcramer/agents"
+
+[[skills]]
+name = "garfield-codify"
+source = "dcramer/agents"
 ```
 
 ### skills
@@ -33,6 +38,7 @@ You can also install this repo's skills with the `skills` CLI:
 
 ```bash
 npx skills add dcramer/agents --skill garfield
+npx skills add dcramer/agents --skill garfield-codify
 ```
 
 Install every skill in this repo:
@@ -45,6 +51,7 @@ npx skills add dcramer/agents --all
 
 - `skills/` contains reusable agent skills.
 - `skills/garfield/` runs an incremental implementation review-fix-verify loop with evidence-labeled concerns and optional independent verification.
+- `skills/garfield-codify/` analyzes Garfield findings and plans deterministic lint, type, CI, schema, generated-artifact, or pre-commit checks.
 
 The implementation loop is named `garfield` instead of a generic name like `iterate` so it stays unique across personal and shared skill registries and avoids conflicts with similarly named workflow skills.
 
@@ -55,3 +62,4 @@ Each skill lives in its own directory and starts with `SKILL.md`. New skills sho
 - `SKILL.md` for runtime instructions.
 - `SPEC.md` for the maintenance contract when the skill intent or scope is non-trivial.
 - `SOURCES.md` for provenance, decisions, gaps, and changelog entries.
+- `agents/openai.yaml` for optional OpenAI UI metadata, such as display name, short description, and default prompt.

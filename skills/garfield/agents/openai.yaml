@@ -1,0 +1,4 @@
+interface:
+  display_name: "Garfield"
+  short_description: "Review-fix-verify implementation slices"
+  default_prompt: "Use $garfield to review and harden this implementation slice before handoff."
