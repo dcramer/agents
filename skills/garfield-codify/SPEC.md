@@ -11,6 +11,7 @@ In scope:
 - accepted, deferred, repeated, rejected, or validation-related review findings
 - current repo check discovery across manifests, configs, scripts, CI, and pre-commit
 - mapping findings to linters, type checkers, formatters, schema checks, generated-artifact checks, dependency/dead-code tools, test rules, CI jobs, and pre-commit hooks
+- mapping stable syntax-level findings to structural search rules such as ast-grep when standard linters do not cover the pattern cleanly
 - recommending modern maintained defaults when no adequate repo standard exists
 - identifying when existing tooling should be tightened instead of replaced
 - recommending custom scripts only as a last resort for stable repo-specific invariants
@@ -35,7 +36,7 @@ Out of scope:
 - Required first actions: gather Garfield findings, validation output, final diff context, repo instructions, manifests, existing tool configs, package scripts, CI, and pre-commit wiring.
 - Required judgment: classify each finding by mechanical detectability, recurrence, impact, false-positive risk, available maintained tooling, repo fit, and rollout cost.
 - Required output: a compact codification plan with existing tooling summary, ranked check candidates, rejected non-candidates, and first implementation slice.
-- Non-negotiable constraints: discover existing tools first; prefer existing adequate tools; prefer maintained popular tools over custom checks; do not implement unless asked; state evidence gaps; avoid migration recommendations that are not tied to Garfield evidence.
+- Non-negotiable constraints: discover existing tools first; prefer existing adequate tools; prefer maintained popular tools over custom checks; prefer generalized runners over one-off finding-specific commands; do not implement unless asked; state evidence gaps; avoid migration recommendations that are not tied to Garfield evidence.
 
 ## Tool Preference Model
 
@@ -48,6 +49,7 @@ Authoritative preference order:
 
 Default best-in-class candidates:
 - JavaScript/TypeScript lint: Oxlint
+- Structural AST checks: ast-grep for repo-specific syntax invariants, required context, migration guards, and carefully tested policy-presence checks
 - JavaScript/TypeScript integrated format/check: Biome when no formatter/checker standard exists
 - TypeScript semantic checks: `tsc --noEmit`
 - JavaScript/TypeScript unused files/exports/dependencies: Knip
@@ -74,6 +76,7 @@ Useful improvement sources:
 - CI failures or reviewer comments that show recurring mechanical misses
 - examples where a proposed check would or would not have caught the finding
 - false-positive reports after a check is adopted
+- rule fixtures for ast-grep or other structural-search checks, especially valid and invalid examples for policy-derived rules
 
 Data that must not be stored:
 - secrets
@@ -85,7 +88,8 @@ Data that must not be stored:
 - `SKILL.md` contains runtime trigger, contract, discovery checklist, tool matrix, codifiability rubric, workflow, and output format.
 - `SPEC.md` contains the maintenance contract and acceptance criteria.
 - `SOURCES.md` contains provenance, decisions, gaps, and changelog entries.
-- `references/` is intentionally absent for v1; the runtime is short enough inline.
+- `references/` is flat. Add one directly linked reference per detailed tool or pattern family when examples would make `SKILL.md` too large.
+- `references/ast-grep-codification.md` contains structural-search guidance and example rule shapes for comment-policy-style checks.
 - `scripts/` is intentionally absent for v1; the skill plans checks and does not automate recurring parsing yet.
 
 ## Validation
@@ -105,6 +109,9 @@ Acceptance gates:
 - clear post-Garfield trigger and false-positive boundaries
 - explicit existing-tool discovery
 - modern default tool matrix
+- flat references directory with directly linked references only
+- ast-grep examples framed as tested rule shapes, not universal drop-in policy
+- runner recommendations consolidate checks under existing `lint`/`check`/`test` commands or one aggregate tool command
 - custom-check-last policy
 - implementation only when explicitly requested
 - no unsupported resource directories
@@ -120,5 +127,5 @@ Acceptance gates:
 
 - Update `SKILL.md` when trigger boundaries, output format, codifiability categories, or default tool preferences change.
 - Update `SOURCES.md` when adding provenance, external tool rationale, decisions, gaps, or changelog entries.
-- Add `references/` only if the tool matrix or language-specific guidance becomes too large for runtime.
+- Keep `references/` flat; split a reference only when a single file becomes too large to scan quickly, and link the new file directly from `SKILL.md`.
 - Add scripts only after repeated use shows a stable parser or report-normalizer is being rewritten.
