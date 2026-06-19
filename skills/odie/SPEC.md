@@ -42,7 +42,7 @@ Out of scope:
 - Required first actions: gather the provided evidence source, identify the target repo, cluster recurring patterns, cross-check with other available history, then inspect repo instructions, manifests, existing tool configs, package scripts, CI, and pre-commit wiring.
 - Required judgment: classify each pattern by exact signal, enforceability, source confidence, recurrence, impact, false-positive risk, available maintained tooling, repo fit, and rollout cost, then run a secondary verification pass to remove candidates that still require true human judgment.
 - Required output: a compact hard-rule plan with existing tooling summary, ranked enforceable rules, rejected judgment calls, and first implementation slice.
-- Non-negotiable constraints: discover existing tools first; prefer existing adequate tools; prefer maintained popular tools over custom checks; prefer generalized runners over one-off finding-specific commands; do not implement unless asked; state evidence gaps; avoid migration recommendations that are not tied to concrete evidence.
+- Non-negotiable constraints: discover existing tools first; prefer existing adequate tools; prefer maintained popular tools and rule frameworks over custom checks; prefer generalized runners over one-off finding-specific commands; require explicit framework-fit proof before recommending a custom script; do not implement unless asked; state evidence gaps; avoid migration recommendations that are not tied to concrete evidence.
 
 ## Tool Preference Model
 
@@ -50,12 +50,14 @@ Authoritative preference order:
 1. Existing repo tool that already enforces or can cleanly enforce the pattern.
 2. Existing repo tool plus a focused rule/config tightening.
 3. Best-in-class maintained ecosystem tool when no adequate repo standard exists.
-4. A narrow custom check only when the invariant is stable, valuable, and not well covered by maintained tools.
-5. No deterministic check when the finding requires human judgment or would be noisy.
+4. Maintained rule framework for repo-specific syntax, config, schema, generated-artifact, or request-shape invariants.
+5. A narrow custom check only when the invariant is stable, valuable, and not cleanly covered by existing tools, maintained tools, structural-search rules, schema checks, diff checks, or deterministic tests.
+6. No deterministic check when the finding requires human judgment or would be noisy.
 
 Required hard-rule proof:
 - exact code/config/command/schema/artifact/test-observable signal
 - exact enforcement surface
+- framework-fit proof before any custom script recommendation
 - scope and allowlist shape
 - invalid and valid examples
 - non-interactive runner
@@ -133,7 +135,7 @@ Acceptance gates:
 - flat references directory with directly linked references only
 - ast-grep examples framed as tested rule shapes, not universal drop-in policy
 - runner recommendations consolidate checks under existing `lint`/`check`/`test` commands or one aggregate tool command
-- custom-check-last policy
+- custom-check-last policy with explicit framework-fit proof
 - implementation only when explicitly requested
 - no unsupported resource directories
 

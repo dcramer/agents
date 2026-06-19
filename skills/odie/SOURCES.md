@@ -10,6 +10,7 @@
 | User ast-grep codification request | High | Asked whether ast-grep examples can help codify Garfield policies such as comment requirements and then requested implementation as a first pass. | Added ast-grep to tool discovery/defaults and created a flat reference with rule-shape guidance. |
 | User skill-structure guidance | High | Requested thinking through skill structure and keeping `references/` flat. | Kept ast-grep material in one directly linked flat reference file and updated the maintenance contract. |
 | User runner guidance | High | Preferred generalized runners over a different runner for every policy check. | Added guidance to wire ast-grep into existing `lint`/`check` or one aggregate `lint:ast-grep`, not finding-specific scripts. |
+| User stdout/ast-grep correction example | High | Showed Odie recommending a one-off stdout guard script for a concrete `console.log`/`console.info`/`console.debug` syntax pattern that should have been an ast-grep-style rule candidate. | Tightened runtime and contract language so custom scripts require explicit framework-fit proof and syntax/artifact signals default to maintained rule frameworks. |
 | Local `AGENTS.md` | High | Defines skill repo shape, concise docs, no deployment config, and validation reporting. | Drove `SKILL.md`, `SPEC.md`, `SOURCES.md`, and validation plan. |
 | Local `skills/garfield/` | High | Provides the upstream workflow, finding vocabulary, validation context, and package shape. | Used as the companion-skill model and post-run evidence source. |
 | Local `README.md` | High | Defines repo skill inventory and install examples. | Updated root skill list and install snippets. |
@@ -45,6 +46,7 @@
 | Structural-search default | ast-grep is the default candidate for repo-specific AST invariants when existing linters cannot express the pattern cleanly. |
 | Flat references | Keep `references/` one level deep and directly linked from `SKILL.md`; add examples to a single topic file until it becomes too large to scan quickly. |
 | Runner consolidation | Prefer adding checks to existing generalized runners; use at most one aggregate per-tool runner when the repo has split lint commands. |
+| Framework-fit gate | Before recommending a custom script, require checking whether an existing repo tool, maintained linter, structural-search rule, schema check, generated diff check, or deterministic test can express the signal. |
 | Python default | Ruff is the default Python lint/format candidate. |
 | No v1 scripts | The work is judgment-heavy and repo-specific; no stable parsing helper is justified yet. |
 | First reference | Added `references/ast-grep-codification.md` because concrete rule shapes would bloat runtime guidance and should be loaded only when structural-search checks are relevant. |
@@ -66,6 +68,7 @@
 | Codifiability judgment | Hard-Rule Gate and Judgment Verification Pass | covered |
 | Human-judgment filter | Judgment Verification Pass and output summary | covered |
 | Custom-check-last policy | Contract, Tool Selection, and workflow | covered |
+| Framework-fit before custom scripts | Contract, Hard-Rule Gate, Tool Selection, `SPEC.md`, and output template | covered |
 | Non-implementation boundary | Contract and workflow | covered |
 | Output format | Output section | covered |
 | Maintenance contract | `SPEC.md` | covered |
@@ -131,3 +134,4 @@ Final description:
 - 2026-06-19: Renamed `garfield-codify` to `odie` and refactored the skill from post-Garfield codification to evidence-led codification using transcript, commit, Sentry, GitHub, CI, review, and Garfield history.
 - 2026-06-19: Added a required secondary judgment verification pass to remove candidates that should remain human review, eval, or integration-test concerns.
 - 2026-06-19: Tightened the runtime around hard-rule proof and simplified output to enforceable hard rules plus rejected judgment calls.
+- 2026-06-19: Tightened custom-script guidance so concrete syntax and artifact checks prefer maintained rule frameworks such as ast-grep before one-off scripts.

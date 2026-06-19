@@ -12,9 +12,10 @@ Analyze recurring failure evidence and produce a hard-rule plan: which patterns 
 - Prefer evidence that is cross-checked across at least two sources, such as transcript findings plus bugfix commits, or Sentry events plus follow-up PRs.
 - Discover existing tooling before recommending new tooling.
 - Recommend only hard, mechanically enforceable rules with a clear pass/fail signal.
-- Prefer strengthening existing adequate tools over adding duplicate tools; prefer maintained tools over custom scripts.
+- Prefer strengthening existing adequate tools over adding duplicate tools; prefer repo-standard or maintained rule frameworks over one-off scripts.
 - Prefer existing generalized runners such as `lint`, `check`, or `test`. If a separate command is justified, use one aggregate tool runner such as `lint:ast-grep`, not finding-specific runners such as `lint:comments`.
-- Recommend custom scripts only for stable repo-specific invariants that cannot be expressed by maintained tools and have small valid/invalid fixtures.
+- Before recommending a custom script, first try to express the exact signal with an existing repo tool, maintained linter rule, structural-search rule, schema check, generated-artifact diff check, or deterministic test helper.
+- Recommend custom scripts only for stable repo-specific invariants that cannot be expressed by those frameworks without overmatching and have small valid/invalid fixtures.
 - Do not implement checks, install dependencies, edit CI, or change configs unless the user explicitly asks for implementation.
 - Do not propose checks for one-off, judgment-heavy, product-requirement, or intentionally accepted tradeoff findings.
 - Run a secondary verification pass before final output to remove candidates that still require true human judgment.
@@ -52,6 +53,7 @@ Recommend a candidate only if all gates pass:
 | --- | --- |
 | Exact signal | A concrete code, config, command, schema, artifact, or test-observable pattern that can be detected without understanding intent. |
 | Exact enforcement | A named existing tool/rule, maintained tool, narrow custom script, or deterministic test with a non-interactive pass/fail result. |
+| Framework fit | Custom scripts include proof that existing repo tools and maintained rule frameworks cannot express the signal cleanly. |
 | Scope | File globs, package boundaries, generated-file exclusions, and allowlist shape are known or small enough to define. |
 | Exceptions | Common valid cases are rare or can be allowlisted with a clear policy. |
 | Examples | At least one invalid example that should fail and one valid example that should pass are available or easy to derive. |
@@ -68,10 +70,13 @@ Use this preference order:
 1. Existing repo check or config tightening.
 2. Existing repo tool plus a focused rule.
 3. Maintained ecosystem tool when no adequate repo standard exists.
-4. Narrow custom script only for stable repo-specific invariants.
-5. No deterministic check.
+4. Maintained rule framework for repo-specific syntax, config, schema, generated-artifact, or request-shape invariants.
+5. Narrow custom script only for stable repo-specific invariants that no framework can express cleanly.
+6. No deterministic check.
 
 Common defaults when the repo has no adequate standard: Oxlint or existing ESLint for JS/TS lint, ast-grep for stable AST invariants, `tsc --noEmit` for TS semantics, Knip for JS/TS dead code and deps, Ruff for Python, `cargo clippy` for Rust, golangci-lint for Go, ShellCheck for shell, actionlint for GitHub Actions, markdownlint-cli2 for Markdown, and yamllint for YAML. For ast-grep policy examples, read `references/ast-grep-codification.md`.
+
+Use framework-style checks for concrete syntax and artifact signals. Banned calls, imports, API shapes, required wrappers, migration guards, config schemas, and generated-file drift should normally be lint, ast-grep, schema, snapshot, or diff checks rather than one-off scripts. A custom script is appropriate only when the signal requires cross-artifact joins, call-graph/data-flow reasoning, custom parsing not covered by maintained tools, or repo-specific normalization that is already stable.
 
 Do not recommend a migration just because a preferred default exists. Recommend migration only when it would directly codify an evidenced pattern, reduce duplicated tooling, improve signal, or materially lower CI/local runtime.
 
@@ -84,6 +89,7 @@ Before finalizing, make a second pass over every candidate and remove it from th
 - The proposed rule would mostly encode taste, broad style, or local reviewer preference.
 - Valid exceptions are common and cannot be allowlisted with a small, understandable policy.
 - The rule would catch the example only by overmatching unrelated code.
+- The candidate uses a custom script where a maintained rule framework can express the same signal with clearer fixtures and lower maintenance cost.
 - The smallest safe implementation is actually human review guidance, not a deterministic check.
 
 Record removed candidates under `rejected judgment calls`. If a rejected pattern is still important, name the right non-rule home: human review guidance, eval coverage, integration coverage, documentation process, or incident follow-up.
@@ -110,6 +116,7 @@ Report only:
 - Existing tooling summary: `reuse`, `tighten`, `add`, or `avoid`
 - Hard rules to add
 - Rejected judgment calls
+- Custom-script justification, only if any custom script remains after framework-fit checks
 - First recommended implementation slice
 - Official-doc links for newly recommended tools when consulted
 
@@ -119,7 +126,7 @@ Use this compact row format for each hard rule:
 - <failure-pattern> -> <tool/check> [<runner>]
   signal: <exact code/config/command/schema/artifact/test-observable signal>
   examples: invalid=<what fails>; valid=<what must pass>
-  why: <evidence link and repo-fit rationale>
+  why: <evidence link, repo-fit rationale, and for custom scripts why maintained rule frameworks do not fit>
   risk: <low|medium|high false-positive risk>
   slice: <smallest implementation step>
 ```
