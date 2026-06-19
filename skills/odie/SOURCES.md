@@ -1,19 +1,19 @@
-# Garfield Codify Sources
+# Odie Sources
 
 ## Source Inventory
 
 | Source | Trust | Contribution | Usage |
 | --- | --- | --- | --- |
-| User request in this thread | High | Requested a Garfield-related skill that analyzes Garfield results and identifies findings that can become deterministic checks. | Defines the skill intent, post-Garfield trigger, and codification focus. |
-| User naming guidance | High | Preferred a name like `garfield-codify`. | Set the skill name and trigger language. |
-| User tool-selection guidance | High | Requested discovering existing repo tooling but otherwise finding the best linters, with Oxlint as an example. | Added existing-tool discovery and best-in-class default matrix. |
+| User request in this thread | High | Requested renaming `garfield-codify` to `odie` and changing course because the post-Garfield trigger was not working. | Defines the new name, broader trigger model, and material refactor direction. |
+| GitHub issue `getsentry/junior#622` | High | Shows a successful codification task driven by Codex transcript review plus commit-history analysis, not a Garfield run. It clusters repeated command drift, schema drift, metadata drift, runtime boundary mistakes, config docs drift, auth/egress signal handling, SQL/conversation invariants, and behavior-vs-static-lint boundaries. | Added transcript, commit, GitHub, CI, and cross-source clustering as first-class evidence. Changed the skill from post-Garfield to evidence-led codification. |
+| User tool-selection guidance | High | Requested discovering existing repo tooling but otherwise finding the best linters, with Oxlint as an example. | Added existing-tool discovery and best-in-class default tool choices. |
 | User ast-grep codification request | High | Asked whether ast-grep examples can help codify Garfield policies such as comment requirements and then requested implementation as a first pass. | Added ast-grep to tool discovery/defaults and created a flat reference with rule-shape guidance. |
 | User skill-structure guidance | High | Requested thinking through skill structure and keeping `references/` flat. | Kept ast-grep material in one directly linked flat reference file and updated the maintenance contract. |
 | User runner guidance | High | Preferred generalized runners over a different runner for every policy check. | Added guidance to wire ast-grep into existing `lint`/`check` or one aggregate `lint:ast-grep`, not finding-specific scripts. |
 | Local `AGENTS.md` | High | Defines skill repo shape, concise docs, no deployment config, and validation reporting. | Drove `SKILL.md`, `SPEC.md`, `SOURCES.md`, and validation plan. |
 | Local `skills/garfield/` | High | Provides the upstream workflow, finding vocabulary, validation context, and package shape. | Used as the companion-skill model and post-run evidence source. |
 | Local `README.md` | High | Defines repo skill inventory and install examples. | Updated root skill list and install snippets. |
-| System `skill-creator` skill | High | Provides skill creation process, frontmatter, initializer, validation, and resource guidance. | Used to initialize the skill and decide against v1 scripts/references/assets. |
+| System `skill-writer` skill | High | Provides skill update process, source capture, precision passes, description optimization, and validation. | Used to refactor the skill and decide against v1 scripts/references/assets. |
 | Oxlint official docs | High | Positions Oxlint as a high-performance JS/TS linter with ESLint migration support, type-aware linting, multi-file analysis, and broad rule/plugin coverage. | Set Oxlint as the preferred JS/TS lint default when no adequate repo standard exists. |
 | Biome official docs | High | Documents integrated formatting, linting, organizing imports, and check workflows. | Set Biome as an integrated formatter/check candidate when no repo standard exists. |
 | TypeScript compiler docs | High | Defines `--noEmit` and strictness-related type-checking options. | Set `tsc --noEmit` as the TS semantic-check baseline. |
@@ -33,13 +33,16 @@
 
 | Decision | Result |
 | --- | --- |
-| Companion skill | Created `garfield-codify` instead of a generic `codify-checks` name so the Garfield relationship is explicit. |
+| Rename | Renamed `garfield-codify` to `odie` so the skill is a companion to Garfield without being gated on a Garfield run. |
 | Runtime role | The skill plans deterministic checks; it does not implement them unless the user explicitly asks. |
-| Evidence boundary | Garfield findings are the primary evidence; the final diff and repo tooling are supporting evidence. |
+| Evidence boundary | Transcript, commit, Sentry, GitHub, CI, reviewer, and Garfield history can all seed the analysis. Garfield is useful evidence, not a precondition. |
+| Cross-checking | Prefer clusters supported by multiple sources, such as transcript findings plus bugfix commits, before recommending durable checks. |
+| Secondary verification | Added a required judgment pass that removes candidates when the proposed check would need human taste, product intent, or semantic quality judgment. |
+| Hard-rule gate | Tightened runtime guidance so recommended checks require exact signals, exact enforcement surfaces, scoped exceptions, valid/invalid examples, and a non-interactive runner. |
 | Tooling order | Existing adequate repo tools beat preferred defaults; preferred defaults beat custom scripts. |
-| Best linter policy | "Best" means high-signal, maintained, popular, repo-fit, low-noise, and able to catch the specific Garfield pattern. |
+| Best linter policy | "Best" means high-signal, maintained, popular, repo-fit, low-noise, and able to catch the exact evidenced signal. |
 | JS/TS default | Oxlint is the default dedicated JS/TS linter candidate when no adequate repo standard exists. |
-| Structural-search default | ast-grep is the default candidate for repo-specific AST invariants when existing linters cannot express the Garfield finding cleanly. |
+| Structural-search default | ast-grep is the default candidate for repo-specific AST invariants when existing linters cannot express the pattern cleanly. |
 | Flat references | Keep `references/` one level deep and directly linked from `SKILL.md`; add examples to a single topic file until it becomes too large to scan quickly. |
 | Runner consolidation | Prefer adding checks to existing generalized runners; use at most one aggregate per-tool runner when the repo has split lint commands. |
 | Python default | Ruff is the default Python lint/format candidate. |
@@ -51,48 +54,80 @@
 
 | Dimension | Covered By | Status |
 | --- | --- | --- |
-| Post-Garfield trigger | Frontmatter and contract | covered |
-| Existing-tool discovery | Tool Discovery section | covered |
-| Best default tool choices | Tool Preference Matrix | covered |
-| Structural AST checks | Tool Preference Matrix and `references/ast-grep-codification.md` | covered |
+| Evidence-led trigger | Frontmatter, contract, inputs, and evidence model | covered |
+| Transcript/commit-history learning | Inputs, evidence model, workflow, and `SPEC.md` | covered |
+| Sentry/GitHub/CI evidence | Inputs and evidence model | covered |
+| Garfield compatibility | Inputs and evidence model | covered |
+| Existing-tool discovery | Tool Selection section | covered |
+| Best default tool choices | Tool Selection section | covered |
+| Hard-rule proof | Hard-Rule Gate and output template | covered |
+| Structural AST checks | Tool Selection section and `references/ast-grep-codification.md` | covered |
 | Runner consolidation | Contract, `SPEC.md`, and `references/ast-grep-codification.md` | covered |
-| Codifiability judgment | Codifiability section | covered |
-| Custom-check-last policy | Contract, matrix, and workflow | covered |
+| Codifiability judgment | Hard-Rule Gate and Judgment Verification Pass | covered |
+| Human-judgment filter | Judgment Verification Pass and output summary | covered |
+| Custom-check-last policy | Contract, Tool Selection, and workflow | covered |
 | Non-implementation boundary | Contract and workflow | covered |
 | Output format | Output section | covered |
 | Maintenance contract | `SPEC.md` | covered |
 | Validation | `SPEC.md` and structural validator | covered |
 
+## Replay Notes
+
+### `getsentry/junior#622`
+
+Expected hard-rule survivors:
+- eval command/documentation drift: exact forbidden command strings and docs/package scopes
+- eval harness/schema drift: exact stale identifiers such as old result and transcript surfaces
+- changed-spec metadata drift: changed `specs/**/*.md` requires `Last Edited` and changelog updates
+- runtime singleton/test mutation: exact exported `set*ForTests`/`reset*ForTests` and singleton-cache shapes in runtime code
+- production composition-root import boundary: exact forbidden import outside allowlisted roots
+- public API barrel exports: exact `export *` from package roots outside allowlists
+- env/config docs alignment: exact config/env schema names missing from docs
+- SQL/conversation boundary checks: exact raw SQL/query shapes plus deterministic invariant tests
+
+Expected rejected or non-static outcomes:
+- Slack routing/message behavior: integration or eval coverage unless a narrow forbidden import/helper signal exists
+- broad "no fallback": human review guidance unless scoped to a typed boundary such as auth/egress structured signals
+- plugin/runtime schema ownership: hard rule only if the repo defines an exact schema adjacency or allowlist policy; otherwise needs more proof
+
 ## Description Optimization
 
 Should trigger:
-- "run garfield-codify on the Garfield results"
-- "which Garfield findings should become deterministic checks?"
+- "run odie on this GitHub issue"
+- "what can we learn from these transcripts and commits?"
+- "which checks would have prevented these Sentry issues?"
+- "codify recurring commit-history findings"
+- "turn this review history into lint or CI checks"
+- "which recurring Garfield findings can become hard rules?"
 - "turn those review findings into lint or CI checks"
 - "what checks should we add so Garfield does not catch this again?"
-- "codify repeated Garfield concerns with best linters"
+- "codify repeated agent review concerns with best linters"
 
 Should not trigger:
 - "run Garfield"
 - "review this PR"
 - "fix CI"
 - "choose a linter for this new app"
-- "implement the checks now" unless paired with an explicit post-Garfield codification plan
+- "triage this Sentry issue" without a codification request
+- "implement the checks now" unless paired with an explicit codification plan
 
 Final description:
 
-> Use after a garfield run to analyze accepted, deferred, repeated, or validation-related findings and identify which should be codified into deterministic checks. Discover existing repo tooling first, then prefer best-in-class maintained tools such as Oxlint, Ruff, Knip, Clippy, golangci-lint, ShellCheck, actionlint, markdownlint-cli2, or yamllint over custom scripts. Do not use for general code review or implementation unless explicitly asked.
+> Use when transcript, commit, Sentry, GitHub, CI, review, or Garfield history suggests recurring failure patterns that might become hard deterministic checks. Analyze the evidence, reject judgment-based ideas, and output only mechanically enforceable lint, schema, CI, workflow, or deterministic test rules. Do not use for general code review, broad tool selection, or implementation unless explicitly asked.
 
 ## Gaps
 
-- No real Garfield transcript has been used to forward-test the skill yet.
-- Garfield does not currently emit a structured codification-candidate handoff by default.
-- The tool matrix will need periodic review as ecosystem defaults change.
+- The hard-rule gate has been replayed against `getsentry/junior#622`, but not yet against a second unrelated holdout issue.
+- No automated transcript or commit-history parser is bundled; agents must use repo-appropriate tools and summarize evidence gaps.
+- The tool defaults will need periodic review as ecosystem standards change.
 - Python type-checker choice is intentionally contextual because ty is modern and fast while Pyright may be the conservative choice for some repos.
 - No automated semantic validator exists for whether recommendations would have caught a finding with acceptable false positives.
 - ast-grep comment/JSDoc examples were smoke-tested against ast-grep 0.43.0, but remain unverified against real target repos; agents must confirm parser node kinds and add target-repo rule tests before CI gating.
 
 ## Changelog
 
-- 2026-06-16: Created `garfield-codify` with post-Garfield codification workflow, existing-tool discovery, best-in-class default tool matrix, and custom-check-last policy.
+- 2026-06-16: Created `garfield-codify` with post-Garfield codification workflow, existing-tool discovery, best-in-class default tool choices, and custom-check-last policy.
 - 2026-06-16: Added ast-grep structural-check guidance, a flat ast-grep codification reference, runner consolidation guidance, and skill-structure notes for flat references.
+- 2026-06-19: Renamed `garfield-codify` to `odie` and refactored the skill from post-Garfield codification to evidence-led codification using transcript, commit, Sentry, GitHub, CI, review, and Garfield history.
+- 2026-06-19: Added a required secondary judgment verification pass to remove candidates that should remain human review, eval, or integration-test concerns.
+- 2026-06-19: Tightened the runtime around hard-rule proof and simplified output to enforceable hard rules plus rejected judgment calls.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Odie"
+  short_description: "Turn recurring failures into checks"
+  default_prompt: "Use $odie on this evidence to identify deterministic checks we should add."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Garfield Codify"
-  short_description: "Turn Garfield findings into checks"
-  default_prompt: "Use $garfield-codify after this Garfield run to identify deterministic checks we should add."

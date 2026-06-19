@@ -1,6 +1,6 @@
 # ast-grep Codification
 
-Use this reference when a Garfield finding is a stable syntax-level pattern that general-purpose linters do not already cover well. Keep this file flat under `references/`; add new examples here until the examples become too large to scan quickly.
+Use this reference when an evidenced failure pattern is a stable syntax-level pattern that general-purpose linters do not already cover well. Keep this file flat under `references/`; add new examples here until the examples become too large to scan quickly.
 
 The example rule shapes in this file were smoke-tested against ast-grep 0.43.0 with `ast-grep test --skip-snapshot-tests`. Still confirm node kinds and fixtures in the target repo before CI gating.
 
@@ -8,10 +8,10 @@ The example rule shapes in this file were smoke-tested against ast-grep 0.43.0 w
 
 | Finding shape | Why ast-grep fits | Rollout default |
 | --- | --- | --- |
-| Banned call/import/API shape | The bad pattern has a concrete AST shape. | `must codify` when repeated or high impact. |
-| Required wrapper/context | Relational rules can check `inside`, `has`, `follows`, or `precedes`. | `should codify` with valid/invalid fixtures. |
-| Migration guard | The old syntax should disappear and stay gone. | `must codify` after baseline cleanup. |
-| Comment/JSDoc presence near exported boundaries | The requirement is structural, not semantic. | `should` or `maybe codify` depending on false positives. |
+| Banned call/import/API shape | The bad pattern has a concrete AST shape. | Hard rule when repeated or high impact. |
+| Required wrapper/context | Relational rules can check `inside`, `has`, `follows`, or `precedes`. | Hard rule only with valid/invalid fixtures. |
+| Migration guard | The old syntax should disappear and stay gone. | Hard rule after baseline cleanup. |
+| Comment/JSDoc presence near exported boundaries | The requirement is structural, not semantic. | Hard rule only when repo policy and examples make the boundary mechanical. |
 
 ## Poor Fits
 
@@ -50,7 +50,7 @@ These examples are starting points for codification plans, not universal rules. 
 
 ### Exported Function Lacks Nearby JSDoc
 
-Use when Garfield repeatedly finds missing intent comments on exported TypeScript functions.
+Use when review or history repeatedly finds missing intent comments on exported TypeScript functions.
 
 ```yaml
 id: require-jsdoc-exported-function
@@ -73,13 +73,13 @@ ignores:
 ```
 
 Rollout notes:
-- Treat this as `should codify` when the repo has a public/internal boundary convention.
+- Treat this as a hard-rule candidate only when the repo has a public/internal boundary convention and repeated evidence.
 - Keep it warning-level until rule tests prove it does not flag generated code, overload signatures, re-export barrels, or obvious leaf helpers.
 - Prefer an ESLint JSDoc rule instead when the repo already uses ESLint deeply and the existing plugin catches the exact boundary.
 
 ### Exported Interface Lacks Boundary Comment
 
-Use only if the policy explicitly requires comments on exported interfaces or Garfield repeatedly flags undocumented interface boundaries.
+Use only if the policy explicitly requires comments on exported interfaces or repeated evidence flags undocumented interface boundaries.
 
 ```yaml
 id: require-comment-exported-interface
@@ -102,13 +102,13 @@ ignores:
 ```
 
 Rollout notes:
-- Classify as `maybe codify` unless the repo policy names exported interfaces directly.
+- Reject as a judgment call unless the repo policy names exported interfaces directly.
 - Do not apply to all interfaces by default; private type shapes often do not need comments.
 - If the repo uses `type` aliases for object interfaces, add a separate tested rule rather than broadening this one blindly.
 
 ### Private Internal Interface Function Lacks JSDoc
 
-Use when a repeated Garfield finding has a stable syntax or naming signal for internal interfaces, such as handlers, factories, signing helpers, storage-format functions, retry/session policy, or durable state transitions.
+Use when repeated evidence has a stable syntax or naming signal for internal interfaces, such as handlers, factories, signing helpers, storage-format functions, retry/session policy, or durable state transitions.
 
 ```yaml
 id: require-jsdoc-private-policy-function
@@ -136,7 +136,7 @@ ignores:
 ```
 
 Rollout notes:
-- Usually `maybe codify`; naming heuristics can be noisy.
+- Usually reject as a judgment call; naming heuristics can be noisy.
 - Prefer several narrow rules from actual Garfield examples over one broad suffix rule.
 - Do not codify small obvious leaf helpers.
 
@@ -165,7 +165,7 @@ ast-grep test --skip-snapshot-tests
 
 ## Codify Output Hints
 
-Use this wording in `garfield-codify` plans:
+Use this wording in `odie` plans:
 
 ```text
 - Missing boundary JSDoc on exported functions -> ast-grep require-jsdoc-exported-function [lint/CI]
