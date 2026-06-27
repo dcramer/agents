@@ -25,6 +25,7 @@ Interfaces should expose the smallest useful capability while keeping ownership,
 - Prefer import-site readability over globally unique names. If a name is only clear because it includes five qualifiers, the module boundary is probably doing too little work.
 - When a term is overloaded in the product or platform, define it once in the owning spec and avoid using it for nearby concepts.
 - Add an interface only when it removes real coupling or represents a stable boundary.
+- Flag only new or changed boundaries, or names made misleading by this slice. Defer naming-only concerns unless they obscure ownership, lifecycle, security, or call-site meaning.
 
 ## Exceptions
 

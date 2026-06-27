@@ -2,7 +2,7 @@
 
 ## Intent
 
-`garfield` is a reusable implementation hardening loop. It runs while actively implementing, after each meaningful code slice, snapshots the core user or PR intent, enumerates review tasks, delegates each task to a no-edit subagent, coordinates validity of the subagents' findings, fixes accepted material concerns only when the smallest fix preserves that core intent, validates the result, asks a separate verification advisor only when it adds signal, and repeats until in-scope blocker/high/medium concerns are gone.
+`garfield` is a reusable implementation hardening loop. It runs while actively implementing, after each meaningful code slice, snapshots the core user or PR intent, enumerates review tasks, delegates each task to a no-edit subagent, coordinates validity of the subagents' findings, fixes accepted material concerns only when the smallest fix preserves that core intent, validates the result, asks a separate verification advisor only when it adds signal, and repeats until current-diff-caused blocker/high/medium concerns are gone.
 
 ## Scope
 
@@ -10,6 +10,7 @@ In scope:
 - incremental feature or fix implementation slices
 - current-diff review and directly related files
 - behavior-preserving cleanup, delayering, type tightening, docs, tests, and dead-code removal that support the current slice
+- fix candidates introduced, worsened, made stale, or omitted by the current diff
 - mandatory subagent-backed advisory review for every enumerated review task
 - bundled policy review for code comments, implementation minimalism, interface design, and test quality
 - source-app policy review for discovered `policies/**/*.md` files in the repository under review
@@ -38,7 +39,7 @@ Out of scope:
 
 - Required first actions: inspect status, diff/base, repo instructions, relevant specs/docs, relevant tests, generated artifacts, lockfiles, bundled policy references, discovered source-app policies, and the core intent including intended behavior changes, compatibility expectations, touched areas, and known non-goals.
 - Required outputs: no cycle log; final status with validation run, independent verification result when used, and residual material concerns only.
-- Non-negotiable constraints: enumerate review tasks across behavior/spec, specs/docs, repo instructions, dead code, delayering, type boundaries, generated/dependencies, validation, bundled policies, and discovered source-app policies; use one review-only subagent per non-policy review task and one policy subagent per bundled or discovered source-app policy; stop if subagents are unavailable; coordinate validity instead of accepting findings automatically; use a separate verification advisor only when it adds signal; require evidence labels and concrete locators for concerns; apply only high-confidence accepted material concerns whose smallest fix preserves core intent; defer valid concerns that require out-of-intent behavior changes or speculative hardening; preserve unrelated user changes; repeat after material edits; avoid unbounded loops; and do not stop with unresolved in-scope blocker/high/medium concerns unless blocked or explicitly deferred.
+- Non-negotiable constraints: enumerate review tasks across behavior/spec, specs/docs, repo instructions, dead code, delayering, type boundaries, generated/dependencies, validation, bundled policies, and discovered source-app policies; use one review-only subagent per non-policy review task and one policy subagent per bundled or discovered source-app policy; stop if subagents are unavailable; coordinate validity instead of accepting findings automatically; use a separate verification advisor only when it adds signal; require evidence labels, cause, and concrete locators for policy concerns; apply only high-confidence accepted material concerns whose smallest fix preserves core intent and does not expand the patch; defer valid concerns that require out-of-intent behavior changes, pre-existing policy cleanup, or speculative hardening; preserve unrelated user changes; repeat after material edits; avoid unbounded loops; and do not stop with unresolved current-diff-caused blocker/high/medium concerns unless blocked or explicitly deferred.
 - Expected bundled files loaded at runtime: `SKILL.md`, `references/code-comments.md`, `references/implementation-minimalism.md`, `references/interface-design.md`, and `references/test-quality.md`.
 
 ## Source And Evidence Model
@@ -88,7 +89,7 @@ Data that must not be stored:
 - Subagent availability and isolation semantics vary by agent runtime; without subagents, this skill cannot run as specified.
 - Review quality depends on giving each advisor enough diff, spec, policy, and validation context.
 - Independent verification can confirm evidence coverage, not prove correctness beyond available commands and inspected artifacts.
-- The skill can over-loop on subjective concerns unless the main agent rejects weak advice explicitly.
+- The skill can over-loop on subjective concerns unless the main agent rejects weak, pre-existing, or expanding advice explicitly.
 
 ## Maintenance Notes
 

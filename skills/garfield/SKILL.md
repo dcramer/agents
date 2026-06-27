@@ -13,6 +13,7 @@ Garfield is Garfield the Cat doing the review: skeptical, concise, allergic to u
 - Snapshot the core intent before review: requested behavior, intended behavior changes, compatibility expectations, touched areas, and known non-goals.
 - Preserve the core user or PR intent. Do not introduce behavior changes outside that intent.
 - Cleanup, delayering, type tightening, docs, tests, and dead-code removal are allowed only when local, behavior-preserving, and supportive of the current slice.
+- A finding is a fix candidate only when the current diff introduced it, worsened it, made existing evidence stale, or omitted a required artifact.
 - Do not change accepted inputs, error behavior, permissions, parameter precedence, defaults, serialization, validation policy, or public API semantics unless explicitly requested or required to fix a regression introduced by the slice.
 - Report adjacent hardening, unrelated cleanup, and unclear behavior changes as deferred findings instead of implementing them.
 - Treat speculative guardrails, fallbacks, edge-case handling, and related tests as deferred unless required by explicit intent, an existing contract, or a real boundary.
@@ -24,7 +25,7 @@ Garfield is Garfield the Cat doing the review: skeptical, concise, allergic to u
 - Spawn one additional subagent per bundled review policy and per discovered source-app policy.
 - Act as coordinator: judge subagent findings for validity, reject weak findings, decide accepted/deferred findings, and implement accepted fixes.
 - Fix accepted `blocker` and `high` concerns only when the smallest fix preserves core intent or fixes a regression introduced by the slice.
-- Fix `medium` concerns only when local, behavior-preserving, and not a policy/API/compatibility change.
+- Fix `medium` concerns only when they remove bloat introduced by the slice, repair stale local evidence, or are one-hop edits to changed code.
 - Reject vague, preference-only, or evidence-free concerns.
 - Do not loop for `low` findings only.
 - Run targeted validation after fixes.
@@ -39,7 +40,7 @@ Garfield is Garfield the Cat doing the review: skeptical, concise, allergic to u
 Severity:
 - `blocker`: must fix before proceeding.
 - `high`: fix when the smallest fix preserves core intent.
-- `medium`: fix when local, behavior-preserving, and supportive of the current slice.
+- `medium`: fix only when current-diff-caused and non-expanding.
 - `low`: optional; do not repeat solely for this.
 
 Evidence labels:
@@ -57,12 +58,12 @@ Use changed-code `path:line` when available. For missing artifacts or validation
 
 1. Snapshot core intent, intended behavior changes, non-goals, diff/base, changed files, repo instructions, relevant specs/docs, generated/lockfile/dependency changes, source-app `policies/**/*.md`, validation commands, and intentional tradeoffs.
 2. Enumerate review tasks, bundled policy reviews, and discovered source-app policy reviews:
-   - behavior/spec review: request/spec behavior, edge paths, failure paths, and user-visible contracts
+   - behavior/spec review: changed request/spec behavior, realistic failure paths, and user-visible contracts
    - specs/docs review: required specs, README, changelog, API docs, or generated docs changed with behavior
    - repo instructions review: repo instructions and local conventions are followed
-   - dead code review: obsolete branches, unused helpers, compatibility leftovers, and deleted/replaced paths are cleaned up
-   - delayering review: unnecessary wrappers, flags, adapters, broad abstractions, indirection, and ownership leaks are removed
-   - type-boundary review: types, casts, nullable boundaries, `any`/`unknown`, and public/internal contracts are strong
+   - dead code review: dead branches, unused helpers, compatibility leftovers, and deleted/replaced paths introduced by the slice are cleaned up
+   - delayering review: wrappers, flags, adapters, broad abstractions, indirection, and ownership leaks introduced by the slice are justified or removed
+   - type-boundary review: changed type boundaries do not weaken contracts with unnecessary casts, nullable spread, `any`, or `unknown`
    - generated/dependency review: generated artifacts, schemas, migrations, lockfiles, package manifests, and dependency additions are necessary and consistent
    - validation review: available checks match the touched files and behavior
    - code-comments policy review: `references/code-comments.md`
@@ -77,7 +78,7 @@ Use changed-code `path:line` when available. For missing artifacts or validation
 7. Ask a separate subagent verification advisor only when it adds signal.
 8. Repeat after material edits.
 
-Stop when no in-scope `blocker`/`high`/`medium` concerns remain and targeted validation passes or has explicit blockers. Stop and report residuals if the same concern repeats twice, 3 cycles pass without new material progress, or fixing requires clarification, broad redesign, risky unrelated edits, or behavior outside the core intent.
+Stop when no current-diff-caused `blocker`/`high`/`medium` concerns remain and targeted validation passes or has explicit blockers. Stop and report residuals if the same concern repeats twice, 3 cycles pass without new material progress, or fixing requires clarification, broad redesign, risky unrelated edits, or behavior outside the core intent.
 
 ## General Review Task Prompt
 
@@ -97,6 +98,7 @@ Validation: <commands and results or not run>
 Intentional tradeoffs: <notes or none>
 
 Behavior guard:
+- Return fix candidates only for concerns introduced by the current diff, worsened by it, made stale by it, or required artifacts it omitted.
 - Return findings only when the smallest fix preserves the core intent, implements the requested behavior, or fixes a regression introduced by this slice.
 - Do not recommend broader hardening, speculative guardrails, fallback paths, edge-case handling, API compatibility changes, permission changes, validation normalization, parameter precedence changes, abstractions, or cleanup unless required by the user goal or directly caused by the diff.
 - Cleanup findings are valid only when behavior-preserving and local to the slice.
@@ -126,13 +128,14 @@ Repo instructions checked: <paths>
 Intentional tradeoffs: <notes or none>
 
 Behavior guard:
+- Return fix candidates only for policy violations introduced by the current diff, worsened by it, made stale by it, or required artifacts it omitted. Defer pre-existing policy debt.
 - Return findings only when the smallest fix preserves the core intent, implements the requested behavior, or fixes a regression introduced by this slice.
 - Do not recommend broader hardening, speculative guardrails, fallback paths, edge-case handling, API compatibility changes, permission changes, validation normalization, parameter precedence changes, abstractions, or cleanup unless required by the user goal or directly caused by the diff.
 - Cleanup findings are valid only when behavior-preserving and local to the slice.
 - If a valid concern requires behavior outside the core intent, report it as deferred/advisory, not as a fix candidate.
 
 Output:
-- [severity][evidence:policy <policy-reference>] path:line - concern. impact: <impact>. fix: <smallest change>.
+- [severity][evidence:policy <policy-reference>;cause:introduced|worsened|stale|missing-required] path:line - concern. impact: <slice impact>. fix: <smallest non-expanding change>.
 
 If no material concerns: none
 ```

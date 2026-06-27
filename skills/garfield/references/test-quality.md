@@ -16,6 +16,7 @@ Tests should prove real product contracts with the least brittle machinery. Agen
 - Assert outcomes, durable state, external payload contracts, or user-visible behavior, not internal calls, call counts, prompt prose, implementation identifiers, logs, spans, Sentry events, metrics, analytics, tracing, or telemetry unless that instrumentation output is the explicitly requested contract.
 - Centralize recurring setup in shared fixtures with narrow read-only inspection such as outboxes or captured deliveries; avoid fixtures that expose broad mutable internals.
 - When test files, fixtures, package scripts, or boundary checks change, verify renamed commands, coverage scripts, and generated test artifacts still point at the new names.
+- Prefer deleting, moving, or narrowing weak tests before adding tests. Add tests only for requested behavior, existing contracts, real regressions, or realistic boundaries touched by the slice.
 
 ## Exceptions
 

@@ -11,6 +11,7 @@ Comments explain non-obvious intent, module ownership, invariants, and tradeoffs
 - Private functions need JSDoc when they define an internal interface: handlers/factories, wire or storage formats, signing, durable state changes, reply gates, or retry/resume/compaction/session policy.
 - Comment non-obvious invariants, tradeoffs, and policy-driven behavior.
 - Keep comments short, concrete, and current.
+- Apply this policy to new or changed boundaries, stale touched comments, and behavior made non-obvious by the slice.
 
 ## Exceptions
 
