@@ -12,6 +12,7 @@
 | `/Users/dcramer/src/junior/policies/code-comments.md` | High | Defines when comments/JSDoc are useful and when they are noise. | Vendored into `references/code-comments.md`. |
 | `/Users/dcramer/src/junior/policies/interface-design.md` | High | Defines narrow interface, naming, lifecycle, ownership, and platform-boundary defaults. | Vendored into `references/interface-design.md`. |
 | User test-quality policy request | High | Defines recurring bad agent-test patterns: over-mocking, weak unit defaults, duplication, and default telemetry/logging assertions. | Adapted into `references/test-quality.md` and used to replace the generic tests/fixtures review task. |
+| User test-deduping and concision requests | High | Clarifies that when a higher-fidelity test encapsulates a lower-fidelity test, Garfield should prefer higher coverage and remove the lower-fidelity duplicate; later requested tightening because more words make misses likelier. | Tightened `references/test-quality.md` to make deletion of encapsulated lower-layer tests the default, then compressed repeated testing guidance into fewer decision-focused bullets. |
 | User implementation-minimalism policy request | High | Defines recurring agent overengineering patterns: excessive guardrails, speculative edge-case handling, fallbacks, and tests for unlikely scenarios. | Adapted into `references/implementation-minimalism.md` and added as a bundled policy subagent. |
 | User source-app policies request | High | Requests discovering local `policies/` files in the source application and running each through a policy subagent similar to bundled Garfield policies. | Added runtime source-app policy discovery and one policy subagent per discovered policy file. |
 | User overengineering feedback | High | Reports that Garfield should prevent bloat while preserving tight interface design and useful comments. | Tightened current-diff causality, medium severity, policy prompts, and policy references. |
@@ -59,6 +60,7 @@
 | Bundled implementation-minimalism policy | adopted | User requested a policy that minimizes speculative guardrails, fallbacks, edge-case handling, and related tests unless they are part of the intent. |
 | Bundled interface-design policy | adopted | User requested pulling this policy into the skill rather than relying on in-repo policies. |
 | Bundled test-quality policy | adopted | User requested replacing the weak generic test reviewer with repo-generic policy that discourages over-mocking, weak unit-test defaults, duplication, and default telemetry/logging assertions. |
+| Encapsulated lower-layer tests | adopted | User requested deduping tests when higher-fidelity coverage already proves the same behavior; preserve lower-layer tests only for distinct local invariants or meaningful failure diagnosis. |
 | Dynamic source-app policy discovery | adopted | Consuming repos may have their own `policies/` docs; Garfield should review against them without vendoring app-specific rules into the portable skill. |
 | Source-app policy file set | adopted | Discover sorted `policies/**/*.md` files and exclude any `README.md` or `policy-template.md` under `policies/` because they are support docs rather than review policies. |
 | Generic tests/fixtures review task | replaced | Test quality needs policy-grade layer and mock analysis; the old task was too broad and encouraged "coverage match" rather than better test architecture. |
@@ -155,3 +157,4 @@ Final description:
 - 2026-06-15: Added source-app `policies/**/*.md` discovery and one policy subagent per discovered policy.
 - 2026-06-16: Added `agents/openai.yaml` with OpenAI UI metadata; runtime behavior remains defined by `SKILL.md`.
 - 2026-06-26: Tightened policy and medium finding gates so Garfield fixes only current-diff-caused concerns and defers pre-existing or patch-expanding advice.
+- 2026-06-30: Tightened test-quality policy to prefer deleting lower-fidelity tests fully encapsulated by higher-fidelity coverage, while retaining distinct invariant or diagnostic tests; compressed repeated guidance into fewer decision-focused bullets.
