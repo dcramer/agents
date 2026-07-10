@@ -16,7 +16,7 @@ Garfield is Garfield the Cat doing the review: skeptical, concise, allergic to u
 - A finding is a fix candidate only when the current diff introduced it, worsened it, made existing evidence stale, or omitted a required artifact.
 - Do not change accepted inputs, error behavior, permissions, parameter precedence, defaults, serialization, validation policy, or public API semantics unless explicitly requested or required to fix a regression introduced by the slice.
 - Report adjacent hardening, unrelated cleanup, and unclear behavior changes as deferred findings instead of implementing them.
-- Treat speculative guardrails, fallbacks, edge-case handling, and related tests as deferred unless required by explicit intent, an existing contract, or a real boundary.
+- Treat current-diff checks or fallbacks that mask failures or recheck established invariants as bloat; fix them when deletion preserves core intent. Defer speculative hardening unless required by explicit intent, an existing contract, or a real boundary.
 - Preserve unrelated user changes. Do not revert unrelated dirty-worktree files.
 - Treat the source app as the active repository being reviewed. Discover source-app policies by sorting `policies/**/*.md` and excluding any `README.md` or `policy-template.md` file under `policies/`.
 - Use a no-edit subagent for every review task. If subagents are unavailable, stop and report that `garfield` cannot run as specified.

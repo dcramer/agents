@@ -15,6 +15,8 @@
 | User test-deduping and concision requests | High | Clarifies that when a higher-fidelity test encapsulates a lower-fidelity test, Garfield should prefer higher coverage and remove the lower-fidelity duplicate; later requested tightening because more words make misses likelier. | Tightened `references/test-quality.md` to make deletion of encapsulated lower-layer tests the default, then compressed repeated testing guidance into fewer decision-focused bullets. |
 | User telemetry testing refinement | High | Clarifies that telemetry tests should be minimized rather than forbidden, and required instrumentation tests should rely on spies or capture sinks before mocks. | Tightened `references/test-quality.md` instrumentation guidance. |
 | User implementation-minimalism policy request | High | Defines recurring agent overengineering patterns: excessive guardrails, speculative edge-case handling, fallbacks, and tests for unlikely scenarios. | Adapted into `references/implementation-minimalism.md` and added as a bundled policy subagent. |
+| User defensive-code refinement request | High | Identifies excessive GPT-generated defensive code as a recurring failure mode and asks Garfield to combat it without bloating the skill. | Tightened implementation minimalism around silent fallback success, repeated invariant checks, and concise boundary-aware exceptions. |
+| [OWASP Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html) and [Secure Cloud Architecture Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Cloud_Architecture_Cheat_Sheet.html) | High | Defines early validation of untrusted external data and trust boundaries where components with different trust levels meet; also notes that trusted components need not repeat every check. | Preserved validation at real boundaries while discouraging duplicate downstream checks. |
 | User source-app policies request | High | Requests discovering local `policies/` files in the source application and running each through a policy subagent similar to bundled Garfield policies. | Added runtime source-app policy discovery and one policy subagent per discovered policy file. |
 | User overengineering feedback | High | Reports that Garfield should prevent bloat while preserving tight interface design and useful comments. | Tightened current-diff causality, medium severity, policy prompts, and policy references. |
 | `getsentry/junior` PR #532 | High | Provides a concrete testing architecture cleanup, including test-layer selection, mock boundary hardening, duplication removal, and Bugbot findings around stale test scripts and unwired adapters. | Adapted into a repo-generic test-quality policy. |
@@ -139,7 +141,7 @@ Final description:
 - Subagent behavior differs by consuming agent runtime; runtimes without subagents cannot run this skill as specified.
 - Source-app policy discovery uses a simple Markdown glob and may need refinement if consuming repos store policy docs outside `policies/`.
 - Evidence label taxonomy is intentionally small and may need revision after real use in `~/src/junior`.
-- Implementation-minimalism policy is sourced from a user-described failure mode and should be tuned against real accepted/rejected findings after use.
+- Implementation-minimalism policy still needs tuning against real accepted/rejected Garfield findings.
 - Test-quality policy is generalized from one large PR and should be tuned against more repos after real use.
 
 ## Changelog
@@ -161,3 +163,4 @@ Final description:
 - 2026-06-26: Tightened policy and medium finding gates so Garfield fixes only current-diff-caused concerns and defers pre-existing or patch-expanding advice.
 - 2026-06-30: Tightened test-quality policy to prefer deleting lower-fidelity tests fully encapsulated by higher-fidelity coverage, while retaining distinct invariant or diagnostic tests; compressed repeated guidance into fewer decision-focused bullets.
 - 2026-07-03: Refined test-quality policy to minimize telemetry assertions while preferring spies or capture sinks over mocks when instrumentation is the requested contract.
+- 2026-07-10: Tightened implementation minimalism against excessive defensive code: silent fallback success, repeated invariant checks, and hypothetical guards, while preserving validation at real trust boundaries.
