@@ -11,11 +11,11 @@ Runtime instructions live in `SKILL.md`. Maintenance contract lives in `SPEC.md`
 | `references/interface-design.md` | Adapted from `/Users/dcramer/src/junior/policies/interface-design.md`. |
 | `references/test-quality.md` | Adapted from `getsentry/junior` PR #532 and testing architecture policy sources. |
 
-`garfield` spawns one policy subagent per bundled review policy.
+`garfield` spawns one policy subagent per applicable bundled review policy. Applicability is determined from the current diff before agents are launched, and all reviewers share the skill's three-open-agent rolling limit.
 
 ## Source-App Policies
 
-When a source application has local policy docs, `garfield` also spawns one policy subagent per discovered `policies/**/*.md` file, excluding any `README.md` or `policy-template.md` file under `policies/`.
+When a source application has local policy docs, `garfield` also spawns one policy subagent per discovered `policies/**/*.md` file whose scope or subject governs the touched slice, excluding any `README.md` or `policy-template.md` file under `policies/`.
 
 These files are read from the repository under review at runtime. Do not vendor source-app policies into this skill.
 

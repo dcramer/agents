@@ -19,10 +19,12 @@ Garfield is Garfield the Cat doing the review: skeptical, concise, allergic to u
 - Treat current-diff checks or fallbacks that mask failures or recheck established invariants as bloat; fix them when deletion preserves core intent. Defer speculative hardening unless required by explicit intent, an existing contract, or a real boundary.
 - Preserve unrelated user changes. Do not revert unrelated dirty-worktree files.
 - Treat the source app as the active repository being reviewed. Discover source-app policies by sorting `policies/**/*.md` and excluding any `README.md` or `policy-template.md` file under `policies/`.
-- Use a no-edit subagent for every review task. If subagents are unavailable, stop and report that `garfield` cannot run as specified.
-- Enumerate review tasks before spawning subagents.
-- Spawn one subagent for each non-policy review task listed in the loop.
-- Spawn one additional subagent per bundled review policy and per discovered source-app policy.
+- Use a no-edit subagent for every applicable review task. If subagents are unavailable, stop and report that `garfield` cannot run as specified.
+- Enumerate candidate review tasks before spawning subagents, then mark each `applicable` or `skipped` with a short diff-based reason. Do not skip a task merely because the slice looks safe.
+- Always run behavior/spec, repo-instructions, and validation review. Run other review tasks and policies only when their listed diff signals or scope apply.
+- Spawn one subagent per applicable review task or policy.
+- Keep at most 3 Garfield subagents open at once. Use a rolling spawn/wait/close/refill loop; collect and close or release completed agents before spawning more when the runtime supports it.
+- Do not launch every applicable task at once, rely on implicit runtime queuing, or repeatedly retry capacity errors. Reduce the batch to available capacity; if capacity remains unavailable after completed agents are drained, stop and report the blocker.
 - Act as coordinator: judge subagent findings for validity, reject weak findings, decide accepted/deferred findings, and implement accepted fixes.
 - Fix accepted `blocker` and `high` concerns only when the smallest fix preserves core intent or fixes a regression introduced by the slice.
 - Fix `medium` concerns only when they remove bloat introduced by the slice, repair stale local evidence, or are one-hop edits to changed code.
@@ -57,26 +59,28 @@ Use changed-code `path:line` when available. For missing artifacts or validation
 ## Loop
 
 1. Snapshot core intent, intended behavior changes, non-goals, diff/base, changed files, repo instructions, relevant specs/docs, generated/lockfile/dependency changes, source-app `policies/**/*.md`, validation commands, and intentional tradeoffs.
-2. Enumerate review tasks, bundled policy reviews, and discovered source-app policy reviews:
-   - behavior/spec review: changed request/spec behavior, realistic failure paths, and user-visible contracts
-   - specs/docs review: required specs, README, changelog, API docs, or generated docs changed with behavior
-   - repo instructions review: repo instructions and local conventions are followed
-   - dead code review: dead branches, unused helpers, compatibility leftovers, and deleted/replaced paths introduced by the slice are cleaned up
-   - delayering review: wrappers, flags, adapters, broad abstractions, indirection, and ownership leaks introduced by the slice are justified or removed
-   - type-boundary review: changed type boundaries do not weaken contracts with unnecessary casts, nullable spread, `any`, or `unknown`
-   - generated/dependency review: generated artifacts, schemas, migrations, lockfiles, package manifests, and dependency additions are necessary and consistent
-   - validation review: available checks match the touched files and behavior
-   - code-comments policy review: `references/code-comments.md`
-   - implementation-minimalism policy review: `references/implementation-minimalism.md`
-   - interface-design policy review: `references/interface-design.md`
-   - test-quality policy review: `references/test-quality.md`
-   - source-app policy reviews: each discovered source-app policy, if any
-3. Spawn one no-edit subagent per non-policy review task and one policy subagent per bundled or source-app policy. Give policy subagents only the relevant policy text plus the slice context.
-4. Coordinate findings: accept valid material concerns only when their smallest fix preserves core intent; reject invalid concerns with evidence; defer valid concerns that require out-of-intent behavior changes, adjacent hardening, unrelated cleanup, or unclear intent.
-5. Fix accepted concerns that preserve core intent.
-6. Run the smallest relevant tests, type checks, linters, builds, schema checks, or generated-artifact checks.
-7. Ask a separate subagent verification advisor only when it adds signal.
-8. Repeat after material edits.
+2. Enumerate candidate reviews and classify each before spawning:
+   - behavior/spec review — always: changed request/spec behavior, realistic failure paths, and user-visible contracts
+   - repo instructions review — always: repo instructions and local conventions are followed
+   - validation review — always: available checks match the touched files and behavior
+   - specs/docs review — when behavior, documented contracts, changelogs, API docs, or generated docs changed or should have changed
+   - dead code review — when paths were replaced, deleted, refactored, or may have left unused symbols or compatibility leftovers
+   - delayering review — when wrappers, flags, adapters, abstractions, indirection, or ownership boundaries changed
+   - type-boundary review — when typed interfaces, casts, nullable values, `any`, `unknown`, or serialization boundaries changed
+   - generated/dependency review — when generated artifacts, schemas, migrations, lockfiles, manifests, or dependencies changed or are required
+   - code-comments policy review — when comments or docstrings changed, or new non-obvious code makes comment quality material: `references/code-comments.md`
+   - implementation-minimalism policy review — when the slice adds guards, fallbacks, wrappers, configuration, edge-case handling, or supporting tests: `references/implementation-minimalism.md`
+   - interface-design policy review — when public or module interfaces, lifecycle, naming, ownership, or platform boundaries changed: `references/interface-design.md`
+   - test-quality policy review — when tests or fixtures changed, or changed behavior creates a concrete test obligation: `references/test-quality.md`
+   - source-app policy reviews — when a discovered policy's scope or subject governs the touched slice
+3. Record every candidate as `applicable` or `skipped` with a concrete diff signal or absence. Confidence that the code is fine is not a skip reason.
+4. Queue one no-edit subagent per applicable task or policy. Give policy subagents only the relevant policy text plus the slice context.
+5. Process the queue with at most 3 open Garfield subagents: spawn up to capacity, wait for results, collect and close or release completed agents when supported, then refill. Drain review agents before starting the verification advisor.
+6. Coordinate findings: accept valid material concerns only when their smallest fix preserves core intent; reject invalid concerns with evidence; defer valid concerns that require out-of-intent behavior changes, adjacent hardening, unrelated cleanup, or unclear intent.
+7. Fix accepted concerns that preserve core intent.
+8. Run the smallest relevant tests, type checks, linters, builds, schema checks, or generated-artifact checks.
+9. Ask a separate subagent verification advisor only when it adds signal.
+10. Repeat after material edits.
 
 Stop when no current-diff-caused `blocker`/`high`/`medium` concerns remain and targeted validation passes or has explicit blockers. Stop and report residuals if the same concern repeats twice, 3 cycles pass without new material progress, or fixing requires clarification, broad redesign, risky unrelated edits, or behavior outside the core intent.
 

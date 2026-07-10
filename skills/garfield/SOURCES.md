@@ -18,6 +18,8 @@
 | User defensive-code refinement request | High | Identifies excessive GPT-generated defensive code as a recurring failure mode and asks Garfield to combat it without bloating the skill. | Tightened implementation minimalism around silent fallback success, repeated invariant checks, and concise boundary-aware exceptions. |
 | [OWASP Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html) and [Secure Cloud Architecture Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Cloud_Architecture_Cheat_Sheet.html) | High | Defines early validation of untrusted external data and trust boundaries where components with different trust levels meet; also notes that trusted components need not repeat every check. | Preserved validation at real boundaries while discouraging duplicate downstream checks. |
 | User source-app policies request | High | Requests discovering local `policies/` files in the source application and running each through a policy subagent similar to bundled Garfield policies. | Added runtime source-app policy discovery and one policy subagent per discovered policy file. |
+| User subagent concurrency feedback | High | Reports that Garfield can over-spawn reviewers and asks for an explicit concurrency limit plus applicability selection before launch. | Replaced unconditional fan-out with diff-based reviewer selection and a three-open-agent rolling window. |
+| OpenAI Codex [`config/mod.rs`](https://github.com/openai/codex/blob/main/codex-rs/core/src/config/mod.rs), [`agent/registry.rs`](https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/registry.rs), and [`agent/control/residency.rs`](https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/control/residency.rs) | High | Current Codex defaults differ by runtime: classic multi-agent defaults to six child threads, Multi-Agent V2 defaults to four total active threads including the coordinator, and capacity/release behavior is runtime-specific. | Chose a portable maximum of three open Garfield subagents, explicit close/release handling, and no reliance on implicit queuing. |
 | User overengineering feedback | High | Reports that Garfield should prevent bloat while preserving tight interface design and useful comments. | Tightened current-diff causality, medium severity, policy prompts, and policy references. |
 | `getsentry/junior` PR #532 | High | Provides a concrete testing architecture cleanup, including test-layer selection, mock boundary hardening, duplication removal, and Bugbot findings around stale test scripts and unwired adapters. | Adapted into a repo-generic test-quality policy. |
 | `/Users/dcramer/src/junior` branch `origin/codex/testing-architecture-cleanup` testing docs | High | Supplies source examples from `specs/testing.md`, `specs/integration-testing.md`, `specs/component-testing.md`, `specs/unit-testing.md`, `specs/eval-testing.md`, and `policies/test-adapters.md`. | Generalized into bundled policy guidance without carrying Junior-specific paths or commands into runtime. |
@@ -58,7 +60,9 @@
 | Skill class: `workflow-process` | adopted | The skill is a repeatable implementation operation with preconditions, ordered flow, failure handling, safety boundaries, and validation. |
 | Primary shape: inline workflow with routed policy references | adopted | The loop belongs in `SKILL.md`; exact policy text belongs in focused references for policy subagents. |
 | Secondary shape: validation loop | adopted | The skill must fix concerns, validate, and repeat until a passing state. |
-| Secondary shape: mandatory review subagents | adopted | The user explicitly requested a subagent for every review task; the main agent enumerates review tasks, spawns one subagent per task, and coordinates finding validity. |
+| Secondary shape: mandatory applicable review subagents | adopted | The main agent classifies candidate reviewers from concrete diff signals, spawns one subagent per applicable task, and records why other tasks were skipped. |
+| Reviewer concurrency limit | adopted | Keep at most three Garfield subagents open so the workflow fits current conservative child capacity across Codex runtimes and does not depend on runtime queuing. |
+| Rolling reviewer lifecycle | adopted | Spawn, wait, collect, close or release when supported, and refill; drain review agents before conditional verification so completed agents do not strand capacity. |
 | Bundled code-comments policy | adopted | User requested pulling this policy into the skill rather than relying on in-repo policies. |
 | Bundled implementation-minimalism policy | adopted | User requested a policy that minimizes speculative guardrails, fallbacks, edge-case handling, and related tests unless they are part of the intent. |
 | Bundled interface-design policy | adopted | User requested pulling this policy into the skill rather than relying on in-repo policies. |
@@ -76,7 +80,7 @@
 | Evidence labels | adopted | Conventional Comments and SARIF prior art both favor structured labels plus locations; evidence labels make concerns reviewable without adding prose. |
 | Anti-loop stop rule | adopted | Stop after repeated concerns or 3 cycles without material progress; do not stop merely because a fixed cycle count was reached. |
 | Review-only advisor contract | adopted | Keeps the main agent accountable for applying or rejecting findings. |
-| Discrete review tasks plus per-policy review | adopted | Behavior/spec, specs/docs, repo instructions, dead code, delayering, types, generated/dependencies, validation, and bundled policies each get their own subagent. |
+| Discrete applicable review tasks plus per-policy review | adopted | Behavior/spec, repo instructions, and validation always run; other task and policy reviewers run only when concrete diff signals or scope make them material. |
 | Coordinator role | adopted | The main agent must evaluate validity of subagent findings instead of treating advisor output as authoritative. |
 | Cycle output | rejected | Per-cycle logs are mostly bookkeeping; the skill should track loops internally and report only validation plus residual material concerns. |
 | Scripts | rejected | No deterministic parsing or automation is required for v1. |
@@ -91,8 +95,8 @@
 | Dimension | Covered By | Status |
 | --- | --- | --- |
 | Preconditions | Define slice: status, diff, repo instructions, specs/docs, tests, generated artifacts, lockfiles, dependencies, and bundled policies. | covered |
-| Ordered flow | Loop and discrete review-task enumeration sections. | covered |
-| Failure handling | Subagent-unavailable stop, validation blocker reporting, recurring-concern handling. | covered |
+| Ordered flow | Applicability classification plus rolling spawn/wait/close/refill loop. | covered |
+| Failure handling | Subagent-unavailable stop, capacity blocker handling, validation blocker reporting, recurring-concern handling. | covered |
 | Safety boundaries | Advisor-not-authority rule, review-only advisor, high-confidence/material concern filter, dirty-worktree preservation, product intent boundary. | covered |
 | Output contract | Minimal handoff status and residual material concerns only. | covered |
 | Evidence labels | Evidence section and reviewer output schema. | covered |
@@ -138,7 +142,7 @@ Final description:
 
 - No real positive or negative iteration examples have been captured yet.
 - No automated semantic validator exists for advisor quality or concern materiality.
-- Subagent behavior differs by consuming agent runtime; runtimes without subagents cannot run this skill as specified.
+- Subagent capacity and release behavior differ by consuming runtime; sessions already using agent slots may leave fewer than three available.
 - Source-app policy discovery uses a simple Markdown glob and may need refinement if consuming repos store policy docs outside `policies/`.
 - Evidence label taxonomy is intentionally small and may need revision after real use in `~/src/junior`.
 - Implementation-minimalism policy still needs tuning against real accepted/rejected Garfield findings.
@@ -164,3 +168,4 @@ Final description:
 - 2026-06-30: Tightened test-quality policy to prefer deleting lower-fidelity tests fully encapsulated by higher-fidelity coverage, while retaining distinct invariant or diagnostic tests; compressed repeated guidance into fewer decision-focused bullets.
 - 2026-07-03: Refined test-quality policy to minimize telemetry assertions while preferring spies or capture sinks over mocks when instrumentation is the requested contract.
 - 2026-07-10: Tightened implementation minimalism against excessive defensive code: silent fallback success, repeated invariant checks, and hypothetical guards, while preserving validation at real trust boundaries.
+- 2026-07-10: Added diff-based reviewer applicability selection and limited Garfield to a rolling window of three open subagents with explicit drain behavior instead of unconditional fan-out or implicit queuing.
