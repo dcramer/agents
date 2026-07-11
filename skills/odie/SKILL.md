@@ -1,6 +1,7 @@
 ---
 name: odie
 description: Use when transcript, commit, Sentry, GitHub, CI, review, or Garfield history suggests recurring failure patterns that might become hard deterministic checks. Analyze the evidence, reject judgment-based ideas, and output only mechanically enforceable lint, schema, CI, workflow, or deterministic test rules. Do not use for general code review, broad tool selection, or implementation unless explicitly asked.
+disable-model-invocation: true
 ---
 
 Analyze recurring failure evidence and produce a hard-rule plan: which patterns can be enforced mechanically, which existing tools should enforce them, where the checks should run, and which patterns must remain human judgment.

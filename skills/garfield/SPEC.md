@@ -32,6 +32,7 @@ Out of scope:
 ## Users And Trigger Context
 
 - Primary users: agents implementing code who need a tight subagent-backed hardening loop before handoff.
+- Invocation: user-invoked only; the model must not activate Garfield automatically.
 - Common user requests: "run garfield on this feature slice", "use garfield after each code slice", "review/fix/repeat this implementation", "use a subagent to find concerns before you finish".
 - Should not trigger for: standalone code review requests, PR CI failure loops, harsh maintainability audits, general brainstorming, documentation-only explanation, non-code iteration, or requests to create/update skills.
 

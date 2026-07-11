@@ -87,6 +87,7 @@
 | Runtime references | adopted | Bundled policy text belongs in `references/` so policy subagents receive exact policy content without relying on consuming repos. |
 | Runtime minimalism | adopted | Removed the runtime H1, cross-skill routing, bundled-reference inventory, and maintenance notes from `SKILL.md`. |
 | Provider-specific mechanics | rejected | The runtime requires subagents but avoids provider-specific API names; runtimes without subagents should report that the skill cannot run as specified. |
+| Invocation control | adopted | Added `disable-model-invocation: true` for Claude Code and `policy.allow_implicit_invocation: false` in `agents/openai.yaml` for Codex so both runtimes keep Garfield user-invoked only. |
 | `SPEC.md` | adopted | The skill has non-trivial trigger, loop, evidence, and validation contracts. |
 | README registration | adopted | The repo maintains a root skill inventory and example install config. |
 
@@ -169,3 +170,4 @@ Final description:
 - 2026-07-03: Refined test-quality policy to minimize telemetry assertions while preferring spies or capture sinks over mocks when instrumentation is the requested contract.
 - 2026-07-10: Tightened implementation minimalism against excessive defensive code: silent fallback success, repeated invariant checks, and hypothetical guards, while preserving validation at real trust boundaries.
 - 2026-07-10: Added diff-based reviewer applicability selection and limited Garfield to a rolling window of three open subagents with explicit drain behavior instead of unconditional fan-out or implicit queuing.
+- 2026-07-11: Made Garfield explicitly user-invoked in Claude Code and Codex with their respective invocation-policy metadata.

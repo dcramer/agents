@@ -1,6 +1,7 @@
 ---
 name: garfield
 description: Use while implementing code changes, after a meaningful slice, to coordinate subagent review/fix/verify loops that preserve the core user or PR intent. Fix regressions, explicit requirement mismatches, validation gaps, and behavior-preserving cleanup; report unrelated improvements or out-of-intent behavior changes instead. Do not use for standalone reviews, brainstorming, or non-code iteration.
+disable-model-invocation: true
 ---
 
 After each meaningful implementation slice, coordinate subagent review, validate accepted findings, fix only what preserves the core intent, and repeat until the slice is ready.

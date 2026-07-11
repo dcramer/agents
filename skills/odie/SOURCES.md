@@ -51,6 +51,7 @@
 | No v1 scripts | The work is judgment-heavy and repo-specific; no stable parsing helper is justified yet. |
 | First reference | Added `references/ast-grep-codification.md` because concrete rule shapes would bloat runtime guidance and should be loaded only when structural-search checks are relevant. |
 | Custom checks | Custom checks are last-resort recommendations for stable repo-specific invariants. |
+| Invocation control | Added `disable-model-invocation: true` for Claude Code and `policy.allow_implicit_invocation: false` in `agents/openai.yaml` for Codex so both runtimes keep Odie user-invoked only. |
 
 ## Coverage Matrix
 
@@ -135,3 +136,4 @@ Final description:
 - 2026-06-19: Added a required secondary judgment verification pass to remove candidates that should remain human review, eval, or integration-test concerns.
 - 2026-06-19: Tightened the runtime around hard-rule proof and simplified output to enforceable hard rules plus rejected judgment calls.
 - 2026-06-19: Tightened custom-script guidance so concrete syntax and artifact checks prefer maintained rule frameworks such as ast-grep before one-off scripts.
+- 2026-07-11: Made Odie explicitly user-invoked in Claude Code and Codex with their respective invocation-policy metadata.

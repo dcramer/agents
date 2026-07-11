@@ -34,6 +34,7 @@ Out of scope:
 ## Users And Trigger Context
 
 - Primary users: agents and developers who have evidence that the same class of issue is recurring and want to prevent it with deterministic checks.
+- Invocation: user-invoked only; the model must not activate Odie automatically.
 - Common requests: "what can we learn from these transcripts?", "codify this recurring issue", "which checks would have prevented these fix commits?", "turn Sentry/GitHub history into lint or CI checks", "what checks should we add so Garfield does not catch this again?"
 - Should not trigger for: "review this PR", "run Garfield", "fix CI", "choose a linter for a fresh project" without recurrence or failure evidence.
 
