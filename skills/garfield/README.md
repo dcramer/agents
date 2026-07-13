@@ -11,13 +11,15 @@ Runtime instructions live in `SKILL.md`. Maintenance contract lives in `SPEC.md`
 | `references/interface-design.md` | Adapted from `/Users/dcramer/src/junior/policies/interface-design.md`. |
 | `references/test-quality.md` | Adapted from `getsentry/junior` PR #532 and testing architecture policy sources. |
 
-`garfield` spawns one policy subagent per applicable bundled review policy. Applicability is determined from the current diff before agents are launched, and all reviewers share the skill's three-open-agent rolling limit.
+`garfield` compares bundled policies with source-app policies before applicability selection, then spawns one policy subagent per applicable policy in the effective set. All reviewers share the skill's three-open-agent rolling limit.
 
 ## Source-App Policies
 
-When a source application has local policy docs, `garfield` also spawns one policy subagent per discovered `policies/**/*.md` file whose scope or subject governs the touched slice, excluding any `README.md` or `policy-template.md` file under `policies/`.
+When a source application has local policy docs, `garfield` discovers `policies/**/*.md` files whose scope or subject governs the touched slice, excluding any `README.md` or `policy-template.md` file under `policies/`.
 
-These files are read from the repository under review at runtime. Do not vendor source-app policies into this skill.
+The coordinator compares policy intent and scope without repo configuration. A source-app policy supersedes a bundled policy when it establishes repo-wide defaults for substantially the same concern, even when names or wording differ. Narrower or adjacent policies supplement the bundled policy. Superseded bundled policies are excluded from review; source-app policies remain authoritative.
+
+These files are read from the repository under review at runtime. Do not vendor source-app policies into this skill or require supersession metadata in consuming repos.
 
 ## Maintenance References
 

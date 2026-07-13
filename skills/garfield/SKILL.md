@@ -20,6 +20,8 @@ Garfield is Garfield the Cat doing the review: skeptical, concise, allergic to u
 - Treat current-diff checks or fallbacks that mask failures or recheck established invariants as bloat; fix them when deletion preserves core intent. Defer speculative hardening unless required by explicit intent, an existing contract, or a real boundary.
 - Preserve unrelated user changes. Do not revert unrelated dirty-worktree files.
 - Treat the source app as the active repository being reviewed. Discover source-app policies by sorting `policies/**/*.md` and excluding any `README.md` or `policy-template.md` file under `policies/`.
+- Before applicability selection, compare each bundled policy with the discovered source-app policies by intent and scope. A source-app policy supersedes a bundled policy when it establishes repo-wide defaults for substantially the same concern, even when names or wording differ; a narrower or adjacent policy supplements it.
+- Build one effective policy set: omit superseded bundled policies, retain supplemental policies, and never send an omitted bundled policy to a reviewer or use it to produce findings.
 - Use a no-edit subagent for every applicable review task. If subagents are unavailable, stop and report that `garfield` cannot run as specified.
 - Enumerate candidate review tasks before spawning subagents, then mark each `applicable` or `skipped` with a short diff-based reason. Do not skip a task merely because the slice looks safe.
 - Always run behavior/spec, repo-instructions, and validation review. Run other review tasks and policies only when their listed diff signals or scope apply.
@@ -60,7 +62,8 @@ Use changed-code `path:line` when available. For missing artifacts or validation
 ## Loop
 
 1. Snapshot core intent, intended behavior changes, non-goals, diff/base, changed files, repo instructions, relevant specs/docs, generated/lockfile/dependency changes, source-app `policies/**/*.md`, validation commands, and intentional tradeoffs.
-2. Enumerate candidate reviews and classify each before spawning:
+2. Compare bundled and source-app policies by meaning. Classify each bundled-to-local relationship as `supersedes`, `supplements`, or `unrelated`, then remove superseded bundled policies from the effective policy set. Favor a source-app policy when it clearly owns the same repo-wide concern; do not infer replacement from filename similarity alone. For example, a broad `policies/testing.md` normally supersedes bundled test quality, while a focused `policies/test-adapters.md` supplements it.
+3. Enumerate candidate reviews from the effective policy set and classify each before spawning:
    - behavior/spec review — always: changed request/spec behavior, realistic failure paths, and user-visible contracts
    - repo instructions review — always: repo instructions and local conventions are followed
    - validation review — always: available checks match the touched files and behavior
@@ -69,19 +72,19 @@ Use changed-code `path:line` when available. For missing artifacts or validation
    - delayering review — when wrappers, flags, adapters, abstractions, indirection, or ownership boundaries changed
    - type-boundary review — when typed interfaces, casts, nullable values, `any`, `unknown`, or serialization boundaries changed
    - generated/dependency review — when generated artifacts, schemas, migrations, lockfiles, manifests, or dependencies changed or are required
-   - code-comments policy review — when comments or docstrings changed, or new non-obvious code makes comment quality material: `references/code-comments.md`
-   - implementation-minimalism policy review — when the slice adds guards, fallbacks, wrappers, configuration, edge-case handling, or supporting tests: `references/implementation-minimalism.md`
-   - interface-design policy review — when public or module interfaces, lifecycle, naming, ownership, or platform boundaries changed: `references/interface-design.md`
-   - test-quality policy review — when tests or fixtures changed, or changed behavior creates a concrete test obligation: `references/test-quality.md`
-   - source-app policy reviews — when a discovered policy's scope or subject governs the touched slice
-3. Record every candidate as `applicable` or `skipped` with a concrete diff signal or absence. Confidence that the code is fine is not a skip reason.
-4. Queue one no-edit subagent per applicable task or policy. Give policy subagents only the relevant policy text plus the slice context.
-5. Process the queue with at most 3 open Garfield subagents: spawn up to capacity, wait for results, collect and close or release completed agents when supported, then refill. Drain review agents before starting the verification advisor.
-6. Coordinate findings: accept valid material concerns only when their smallest fix preserves core intent; reject invalid concerns with evidence; defer valid concerns that require out-of-intent behavior changes, adjacent hardening, unrelated cleanup, or unclear intent.
-7. Fix accepted concerns that preserve core intent.
-8. Run the smallest relevant tests, type checks, linters, builds, schema checks, or generated-artifact checks.
-9. Ask a separate subagent verification advisor only when it adds signal.
-10. Repeat after material edits.
+   - retained code-comments policy review — when comments or docstrings changed, or new non-obvious code makes comment quality material: `references/code-comments.md`
+   - retained implementation-minimalism policy review — when the slice adds guards, fallbacks, wrappers, configuration, edge-case handling, or supporting tests: `references/implementation-minimalism.md`
+   - retained interface-design policy review — when public or module interfaces, lifecycle, naming, ownership, or platform boundaries changed: `references/interface-design.md`
+   - retained test-quality policy review — when tests or fixtures changed, or changed behavior creates a concrete test obligation: `references/test-quality.md`
+   - effective source-app policy reviews — when a discovered policy's scope or subject governs the touched slice
+4. Record every candidate as `applicable` or `skipped` with a concrete diff signal or absence. Record each omitted bundled policy as `skipped — superseded by <source-app-policy-path>`. Confidence that the code is fine is not a skip reason.
+5. Queue one no-edit subagent per applicable task or effective policy. Give policy subagents only the relevant policy text plus the slice context.
+6. Process the queue with at most 3 open Garfield subagents: spawn up to capacity, wait for results, collect and close or release completed agents when supported, then refill. Drain review agents before starting the verification advisor.
+7. Coordinate findings: accept valid material concerns only when their smallest fix preserves core intent; reject invalid concerns with evidence; defer valid concerns that require out-of-intent behavior changes, adjacent hardening, unrelated cleanup, or unclear intent.
+8. Fix accepted concerns that preserve core intent.
+9. Run the smallest relevant tests, type checks, linters, builds, schema checks, or generated-artifact checks.
+10. Ask a separate subagent verification advisor only when it adds signal.
+11. Repeat after material edits.
 
 Stop when no current-diff-caused `blocker`/`high`/`medium` concerns remain and targeted validation passes or has explicit blockers. Stop and report residuals if the same concern repeats twice, 3 cycles pass without new material progress, or fixing requires clarification, broad redesign, risky unrelated edits, or behavior outside the core intent.
 

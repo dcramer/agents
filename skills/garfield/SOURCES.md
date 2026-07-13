@@ -18,6 +18,7 @@
 | User defensive-code refinement request | High | Identifies excessive GPT-generated defensive code as a recurring failure mode and asks Garfield to combat it without bloating the skill. | Tightened implementation minimalism around silent fallback success, repeated invariant checks, and concise boundary-aware exceptions. |
 | [OWASP Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html) and [Secure Cloud Architecture Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Cloud_Architecture_Cheat_Sheet.html) | High | Defines early validation of untrusted external data and trust boundaries where components with different trust levels meet; also notes that trusted components need not repeat every check. | Preserved validation at real boundaries while discouraging duplicate downstream checks. |
 | User source-app policies request | High | Requests discovering local `policies/` files in the source application and running each through a policy subagent similar to bundled Garfield policies. | Added runtime source-app policy discovery and one policy subagent per discovered policy file. |
+| User policy supersession request | High | Requires removing redundant bundled policy reviews when a repo-local policy supersedes the same concern, with no repo configuration because the decision should be agentic. | Added intent-and-scope comparison and an effective policy set that excludes superseded bundled policies while retaining supplements. |
 | User subagent concurrency feedback | High | Reports that Garfield can over-spawn reviewers and asks for an explicit concurrency limit plus applicability selection before launch. | Replaced unconditional fan-out with diff-based reviewer selection and a three-open-agent rolling window. |
 | OpenAI Codex [`config/mod.rs`](https://github.com/openai/codex/blob/main/codex-rs/core/src/config/mod.rs), [`agent/registry.rs`](https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/registry.rs), and [`agent/control/residency.rs`](https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/control/residency.rs) | High | Current Codex defaults differ by runtime: classic multi-agent defaults to six child threads, Multi-Agent V2 defaults to four total active threads including the coordinator, and capacity/release behavior is runtime-specific. | Chose a portable maximum of three open Garfield subagents, explicit close/release handling, and no reliance on implicit queuing. |
 | User overengineering feedback | High | Reports that Garfield should prevent bloat while preserving tight interface design and useful comments. | Tightened current-diff causality, medium severity, policy prompts, and policy references. |
@@ -71,6 +72,7 @@
 | Telemetry test minimization | adopted | User clarified that instrumentation tests should be rare but valid when telemetry is the contract, and should observe the real delivery path with spies or capture sinks instead of broad telemetry mocks. |
 | Dynamic source-app policy discovery | adopted | Consuming repos may have their own `policies/` docs; Garfield should review against them without vendoring app-specific rules into the portable skill. |
 | Source-app policy file set | adopted | Discover sorted `policies/**/*.md` files and exclude any `README.md` or `policy-template.md` under `policies/` because they are support docs rather than review policies. |
+| Agentic local-policy supersession | adopted | Compare policy intent and scope; repo-wide local defaults replace bundled policies for substantially the same concern even when names differ, while narrower or adjacent policies supplement them. No repo metadata or configuration is required. |
 | Generic tests/fixtures review task | replaced | Test quality needs policy-grade layer and mock analysis; the old task was too broad and encouraged "coverage match" rather than better test architecture. |
 | Non-policy review task wording | narrowed | Policy reviews are listed in the loop, so spawn wording now prevents accidentally running bundled policy subagents twice. |
 | Bundled policy template | adopted | User requested keeping policy references concise; template gives the maintenance shape. |
@@ -95,8 +97,8 @@
 
 | Dimension | Covered By | Status |
 | --- | --- | --- |
-| Preconditions | Define slice: status, diff, repo instructions, specs/docs, tests, generated artifacts, lockfiles, dependencies, and bundled policies. | covered |
-| Ordered flow | Applicability classification plus rolling spawn/wait/close/refill loop. | covered |
+| Preconditions | Define slice: status, diff, repo instructions, specs/docs, tests, generated artifacts, lockfiles, dependencies, and bundled and source-app policies. | covered |
+| Ordered flow | Agentic policy supersession, applicability classification, then rolling spawn/wait/close/refill loop. | covered |
 | Failure handling | Subagent-unavailable stop, capacity blocker handling, validation blocker reporting, recurring-concern handling. | covered |
 | Safety boundaries | Advisor-not-authority rule, review-only advisor, high-confidence/material concern filter, dirty-worktree preservation, product intent boundary. | covered |
 | Output contract | Minimal handoff status and residual material concerns only. | covered |
@@ -104,6 +106,7 @@
 | Independent verification | Conditional verification advisor prompt and handoff status. | covered |
 | Policy compliance | `references/code-comments.md`, `references/implementation-minimalism.md`, `references/interface-design.md`, `references/test-quality.md`, and policy subagent prompt. | covered |
 | Source-app policy compliance | Runtime discovery of source-app `policies/**/*.md` and one policy subagent per discovered file. | covered |
+| Redundant policy removal | Intent-and-scope comparison builds one effective policy set and excludes superseded bundled policies without repo configuration. | covered |
 | Specs/docs | Advisor checklist and slice definition. | covered |
 | Dead code and delayering | Advisor checklist and fix categories. | covered |
 | Implementation minimalism | `references/implementation-minimalism.md`, policy subagent prompt, and core-intent behavior gate. | covered |
@@ -145,6 +148,7 @@ Final description:
 - No automated semantic validator exists for advisor quality or concern materiality.
 - Subagent capacity and release behavior differ by consuming runtime; sessions already using agent slots may leave fewer than three available.
 - Source-app policy discovery uses a simple Markdown glob and may need refinement if consuming repos store policy docs outside `policies/`.
+- Semantic supersession may need tuning from real runs when local policies partially overlap broad bundled policies.
 - Evidence label taxonomy is intentionally small and may need revision after real use in `~/src/junior`.
 - Implementation-minimalism policy still needs tuning against real accepted/rejected Garfield findings.
 - Test-quality policy is generalized from one large PR and should be tuned against more repos after real use.
@@ -171,3 +175,4 @@ Final description:
 - 2026-07-10: Tightened implementation minimalism against excessive defensive code: silent fallback success, repeated invariant checks, and hypothetical guards, while preserving validation at real trust boundaries.
 - 2026-07-10: Added diff-based reviewer applicability selection and limited Garfield to a rolling window of three open subagents with explicit drain behavior instead of unconditional fan-out or implicit queuing.
 - 2026-07-11: Made Garfield explicitly user-invoked in Claude Code and Codex with their respective invocation-policy metadata.
+- 2026-07-12: Added agentic source-app policy supersession so repo-wide local defaults replace redundant bundled policy reviews by intent and scope without repo configuration.
