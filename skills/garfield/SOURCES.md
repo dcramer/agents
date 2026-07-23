@@ -24,22 +24,22 @@
 | User overengineering feedback | High | Reports that Garfield should prevent bloat while preserving tight interface design and useful comments. | Tightened current-diff causality, medium severity, policy prompts, and policy references. |
 | `getsentry/junior` PR #532 | High | Provides a concrete testing architecture cleanup, including test-layer selection, mock boundary hardening, duplication removal, and Bugbot findings around stale test scripts and unwired adapters. | Adapted into a repo-generic test-quality policy. |
 | `/Users/dcramer/src/junior` branch `origin/codex/testing-architecture-cleanup` testing docs | High | Supplies source examples from `specs/testing.md`, `specs/integration-testing.md`, `specs/component-testing.md`, `specs/unit-testing.md`, `specs/eval-testing.md`, and `policies/test-adapters.md`. | Generalized into bundled policy guidance without carrying Junior-specific paths or commands into runtime. |
-| Sidecar review of draft implementation-loop skill | High | Identified missing trigger boundaries, no-edit advisor contract, severity semantics, anti-loop rules, dirty-worktree handling, and generated/dependency checks. | Incorporated into runtime rules, loop contract, prompt schema, `SPEC.md`, and coverage notes. |
+| Sidecar review of draft implementation-loop skill | High | Identified missing trigger boundaries, no-edit advisor contract, severity semantics, anti-loop rules, dirty-worktree handling, and generated/dependency checks. | Incorporated into runtime rules, loop contract, prompt schema, `spec.md`, and coverage notes. |
 | [Google Engineering Practices: What to look for in a code review](https://google.github.io/eng-practices/review/reviewer/looking-for.html) | High | Prior art for checking tests, documentation, style authority, maintainability, and avoiding blocking on personal style. | Reinforced test/docs/policy checks and low-severity handling. |
 | [Gerrit Review Labels documentation](https://gerrit-review.googlesource.com/Documentation/config-labels.html) | High | Prior art separating `Code-Review` from `Verified`, where verification means compilation/tests passed. | Drove separate review advisor and verification advisor concepts. |
 | [GitHub protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches) and [pull request reviews](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/about-pull-request-reviews) | High | Prior art for required reviews, stale approvals after new commits, status checks, and most-recent-push approval by someone else. | Reinforced rerun-after-edit behavior and independent verification after material changes. |
 | [Conventional Comments](https://conventionalcomments.org/) | Medium | Prior art for labeled review comments that improve intent clarity and machine readability. | Drove explicit evidence labels in concern output. |
 | [OASIS SARIF 2.1.0](https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html) | High | Prior art for structured analysis results with severity, message, locations, related locations, and rule identifiers. | Drove location/evidence requirements and concise diagnostic-style output. |
 | [Kubernetes Pull Request Process](https://www.kubernetes.dev/docs/guide/pull-requests/) | Medium | Prior art for test/review/edit repeat loops, trusted reviewers, `/lgtm`, `/approve`, and test reruns. | Reinforced loop semantics, independent review signals, and not fixing every weak comment. |
-| Local `skill-writer` skill instructions | High | Required workflow for skill creation, synthesis, authoring, description optimization, and validation. | Used for artifact layout, `SPEC.md`, `SOURCES.md`, and validation plan. |
+| Local `skill-writer` skill instructions | High | Required workflow for skill creation, synthesis, authoring, description optimization, and validation. | Used for artifact layout, `spec.md`, `SOURCES.md`, and validation plan. |
 | `skill-writer/references/mode-selection.md` | High | New skill requires synthesis, authoring, description optimization, and registration/validation. | Drove selected path. |
 | `skill-writer/references/execution-shapes.md` | High | Choose simplest adequate shape; add advanced mechanics only when needed. | Drove inline runtime with a mandatory subagent advisor step and no extra references. |
 | `skill-writer/references/layout-inline-skill.md` | High | Inline layout fits the universal loop. | Drove compact `SKILL.md`; bundled policies were later split into focused references. |
 | `skill-writer/references/workflow-validation-loops.md` | High | Defines validate-fix-repeat contract and passing state. | Drove loop and stop rules. |
 | `skill-writer/references/source-adaptation.md` | High | Converts user workflow prompt into reusable skill guidance. | Drove provenance and adaptation notes. |
 | `skill-writer/references/authoring-path.md` | High | Defines frontmatter, runtime compactness, and precision pass. | Drove `SKILL.md` shape. |
-| `skill-writer/references/reference-architecture.md` | High | Separates runtime, maintenance, provenance, and optional references. | Drove `SKILL.md`, `SPEC.md`, and `SOURCES.md` boundaries. |
-| `skill-writer/references/spec-template.md` | High | Defines maintenance contract shape. | Drove `SPEC.md`. |
+| `skill-writer/references/reference-architecture.md` | High | Separates runtime, maintenance, provenance, and optional references. | Drove `SKILL.md`, `spec.md`, and `SOURCES.md` boundaries. |
+| `skill-writer/references/spec-template.md` | High | Defines maintenance contract shape. | Drove `spec.md`. |
 | `skill-writer/references/description-optimization.md` | High | Trigger wording and false-positive checks. | Drove final description. |
 | `skill-writer/references/registration-validation.md` | High | Registration and structural validation expectations. | Drove root README update and validator command. |
 
@@ -90,7 +90,7 @@
 | Runtime minimalism | adopted | Removed the runtime H1, cross-skill routing, bundled-reference inventory, and maintenance notes from `SKILL.md`. |
 | Provider-specific mechanics | rejected | The runtime requires subagents but avoids provider-specific API names; runtimes without subagents should report that the skill cannot run as specified. |
 | Invocation control | adopted | Added `disable-model-invocation: true` for Claude Code and `policy.allow_implicit_invocation: false` in `agents/openai.yaml` for Codex so both runtimes keep Garfield user-invoked only. |
-| `SPEC.md` | adopted | The skill has non-trivial trigger, loop, evidence, and validation contracts. |
+| `spec.md` | adopted | The skill has non-trivial trigger, loop, evidence, and validation contracts. |
 | README registration | adopted | The repo maintains a root skill inventory and example install config. |
 
 ## Coverage Matrix
@@ -176,3 +176,4 @@ Final description:
 - 2026-07-10: Added diff-based reviewer applicability selection and limited Garfield to a rolling window of three open subagents with explicit drain behavior instead of unconditional fan-out or implicit queuing.
 - 2026-07-11: Made Garfield explicitly user-invoked in Claude Code and Codex with their respective invocation-policy metadata.
 - 2026-07-12: Added agentic source-app policy supersession so repo-wide local defaults replace redundant bundled policy reviews by intent and scope without repo configuration.
+- 2026-07-22: Migrated the maintenance contract to Skillet `spec.md`, synchronized `SKILL.md` with its spec hash, and deliberately omitted transcript-judged eval cases because Garfield's multi-subagent orchestration made them slow and low-signal.

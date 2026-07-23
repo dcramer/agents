@@ -57,9 +57,9 @@ The implementation loop is named `garfield` instead of a generic name like `iter
 
 ## Skill Format
 
-Each skill lives in its own directory and starts with `SKILL.md`. New skills should include:
+Each skill lives in its own directory and starts with `SKILL.md`. This repository uses [Skillet](https://skillet.sentry.dev) for spec-driven skill authoring and structural validation. New skills should include:
 
 - `SKILL.md` for runtime instructions.
-- `SPEC.md` for the maintenance contract when the skill intent or scope is non-trivial.
+- `spec.md` for the Skillet behavior contract. Legacy skills may retain `SPEC.md` until migrated.
 - `SOURCES.md` for provenance, decisions, gaps, and changelog entries.
 - `agents/openai.yaml` for optional OpenAI UI metadata, such as display name, short description, and default prompt.

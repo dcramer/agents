@@ -4,13 +4,14 @@
 - `skills/` contains reusable agent skills.
 - Each skill lives at `skills/<name>/`.
 - `SKILL.md` contains runtime instructions and must start with skill frontmatter.
-- `SPEC.md` contains the maintenance contract for non-trivial skills.
+- `spec.md` contains the Skillet behavior contract for migrated skills; legacy skills may retain `SPEC.md` until migrated.
 - `SOURCES.md` contains provenance, decisions, gaps, and changelog entries.
 
 ## External References
-| Need | File |
-|------|------|
+| Need | Reference |
+|------|-----------|
 | Repo purpose and installation entrypoint | `README.md` |
+| Skill specification and validation CLI | [Skillet](https://skillet.sentry.dev) |
 
 ## Conventions
 - Keep runtime skill guidance portable; use skill-root-relative paths.
