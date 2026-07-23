@@ -1,0 +1,22 @@
+behavior: effective-review-plan
+fixture: policy-overlap
+setup: |
+  git init -q
+  git config user.email eval@example.test
+  git config user.name "Eval User"
+  git add . ':(exclude).eval-change.patch'
+  git commit -qm baseline
+  git apply .eval-change.patch
+  rm .eval-change.patch
+prompt: |
+  Run Garfield on the TTL cache slice. I want the cache behavior and its tests
+  checked against this repository's conventions before I hand it off.
+checks:
+  - judge: >
+      The agent discovers policies/testing.md while excluding the policy support
+      template, recognizes that the repo-wide testing policy covers the same
+      concern as the bundled test-quality review, and therefore uses the local
+      policy without also scheduling the bundled duplicate. It still schedules
+      the always-required behavior/spec, repository-instructions, and validation
+      reviews, and gives concrete diff-based applicable or skipped reasons for
+      every other candidate.

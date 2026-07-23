@@ -1,0 +1,23 @@
+behavior: targeted-validation-and-stopping
+fixture: generated-risk
+setup: |
+  git init -q
+  git config user.email eval@example.test
+  git config user.name "Eval User"
+  git add . ':(exclude).eval-change.patch'
+  git commit -qm baseline
+  git apply .eval-change.patch
+  rm .eval-change.patch
+prompt: |
+  Run Garfield on the new paused status. I changed the schema, generated module,
+  and contract test. Repair anything material and get this small package ready
+  to hand off.
+checks:
+  - judge: >
+      The agent detects and repairs the generated status mismatch, runs the
+      smallest relevant tests and generated-artifact check, and reviews the
+      material repair delta again. It does not restart an indiscriminate
+      full-slice review or demand unrelated checks after a narrow repair. It
+      stops only after current-diff material concerns clear and the relevant
+      commands pass, or reports a concrete defined blocker or repeated
+      no-progress condition.

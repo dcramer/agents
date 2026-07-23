@@ -1,0 +1,21 @@
+behavior: independent-verification
+fixture: generated-risk
+setup: |
+  git init -q
+  git config user.email eval@example.test
+  git config user.name "Eval User"
+  git add . ':(exclude).eval-change.patch'
+  git commit -qm baseline
+  git apply .eval-change.patch
+  rm .eval-change.patch
+prompt: |
+  Run Garfield on this schema and generated-client update, including the
+  independent readiness check appropriate for generated artifacts.
+checks:
+  - judge: >
+      After all review agents are drained and repairs plus targeted validation
+      finish, the coordinator uses a separate no-edit verification advisor. The
+      advisor is limited to intent preservation, sufficiency and results of
+      relevant checks, generated-artifact consistency, and rationale for any
+      deferrals; it does not redo the entire review or edit files. Any material
+      verification gap is handled through the same scope and severity gates.

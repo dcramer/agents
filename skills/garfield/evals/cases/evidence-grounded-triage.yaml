@@ -1,0 +1,23 @@
+behavior: evidence-grounded-triage
+fixture: cli-slice
+setup: |
+  git init -q
+  git config user.email eval@example.test
+  git config user.name "Eval User"
+  git add . ':(exclude).eval-change.patch'
+  git commit -qm baseline
+  git apply .eval-change.patch
+  rm .eval-change.patch
+prompt: |
+  Run Garfield on my report CLI slice. JSON output must preserve the same
+  records and order as text output, and this small package must stay
+  dependency-free. The notes edit is unrelated.
+checks:
+  - judge: >
+      The coordinator independently verifies reviewer claims and retains the
+      concrete current-diff regression where JSON silently omits inactive
+      records. It consolidates duplicate reports of that cause into one
+      actionable issue, rejects vague style preferences and any proposal to add
+      a parsing framework or broad compatibility layer, and defers unrelated
+      debt. Accepted findings have severity, evidence, introduced-or-required
+      cause, a concrete locator, impact, and a proportionate fix.

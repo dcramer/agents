@@ -1,0 +1,50 @@
+diff --git a/src/cache.mjs b/src/cache.mjs
+--- a/src/cache.mjs
++++ b/src/cache.mjs
+@@ -1,7 +1,17 @@
+-export function createCache({ load }) {
++export function createCache({ load, now = Date.now, ttlMs = 1_000 }) {
++  const entries = new Map();
++
+   return {
+     async get(key) {
+-      return load(key);
++      const current = entries.get(key);
++      const timestamp = now();
++      if (current && timestamp - current.loadedAt < ttlMs) {
++        return current.value;
++      }
++
++      const value = await load(key);
++      entries.set(key, { loadedAt: timestamp, value });
++      return value;
+     },
+   };
+ }
+diff --git a/test/cache.test.mjs b/test/cache.test.mjs
+--- a/test/cache.test.mjs
++++ b/test/cache.test.mjs
+@@ -6,3 +6,23 @@ test("loads values by key", async () => {
+   const cache = createCache({ load: async (key) => `value:${key}` });
+   assert.equal(await cache.get("one"), "value:one");
+ });
++
++test("reuses a value until its ttl expires", async () => {
++  let timestamp = 100;
++  let loads = 0;
++  const cache = createCache({
++    load: async () => {
++      loads += 1;
++      return `value:${loads}`;
++    },
++    now: () => timestamp,
++    ttlMs: 50,
++  });
++
++  assert.equal(await cache.get("one"), "value:1");
++  timestamp = 149;
++  assert.equal(await cache.get("one"), "value:1");
++  timestamp = 150;
++  assert.equal(await cache.get("one"), "value:2");
++  assert.equal(loads, 2);
++});

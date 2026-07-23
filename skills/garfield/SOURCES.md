@@ -22,6 +22,8 @@
 | User subagent concurrency feedback | High | Reports that Garfield can over-spawn reviewers and asks for an explicit concurrency limit plus applicability selection before launch. | Replaced unconditional fan-out with diff-based reviewer selection and a three-open-agent rolling window. |
 | OpenAI Codex [`config/mod.rs`](https://github.com/openai/codex/blob/main/codex-rs/core/src/config/mod.rs), [`agent/registry.rs`](https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/registry.rs), and [`agent/control/residency.rs`](https://github.com/openai/codex/blob/main/codex-rs/core/src/agent/control/residency.rs) | High | Current Codex defaults differ by runtime: classic multi-agent defaults to six child threads, Multi-Agent V2 defaults to four total active threads including the coordinator, and capacity/release behavior is runtime-specific. | Chose a portable maximum of three open Garfield subagents, explicit close/release handling, and no reliance on implicit queuing. |
 | User overengineering feedback | High | Reports that Garfield should prevent bloat while preserving tight interface design and useful comments. | Tightened current-diff causality, medium severity, policy prompts, and policy references. |
+| Native Garfield transcript quality review (844 native reviewer sessions across Peated, Junior, Warden, Flue Agents, and Sentry MCP) | High | Evaluates all 727 structured findings plus 114 native no-structured-finding sessions, including concrete examples of comment churn, healthy-seam removal, unsafe check deletion, test-harness inflation, compatibility literalism, public-API deletion, and cross-lane duplication. | Drove coordinator ownership/deduplication, defect/remedy separation, delta-aware reruns, native lane cards, and focused policy brakes. |
+| User eval-budget feedback | High | Allows eval coverage but asks that it not become a second project. | Capped the initial suite at eight cases, one per existing behavior, with four dependency-free fixtures and no live services. |
 | `getsentry/junior` PR #532 | High | Provides a concrete testing architecture cleanup, including test-layer selection, mock boundary hardening, duplication removal, and Bugbot findings around stale test scripts and unwired adapters. | Adapted into a repo-generic test-quality policy. |
 | `/Users/dcramer/src/junior` branch `origin/codex/testing-architecture-cleanup` testing docs | High | Supplies source examples from `specs/testing.md`, `specs/integration-testing.md`, `specs/component-testing.md`, `specs/unit-testing.md`, `specs/eval-testing.md`, and `policies/test-adapters.md`. | Generalized into bundled policy guidance without carrying Junior-specific paths or commands into runtime. |
 | Sidecar review of draft implementation-loop skill | High | Identified missing trigger boundaries, no-edit advisor contract, severity semantics, anti-loop rules, dirty-worktree handling, and generated/dependency checks. | Incorporated into runtime rules, loop contract, prompt schema, `spec.md`, and coverage notes. |
@@ -84,6 +86,14 @@
 | Review-only advisor contract | adopted | Keeps the main agent accountable for applying or rejecting findings. |
 | Discrete applicable review tasks plus per-policy review | adopted | Behavior/spec, repo instructions, and validation always run; other task and policy reviewers run only when concrete diff signals or scope make them material. |
 | Coordinator role | adopted | The main agent must evaluate validity of subagent findings instead of treating advisor output as authoritative. |
+| One concern owner | adopted | Cluster findings by stable locator and normalized underlying cause before repair; one native lane owns the concern and other lane reports corroborate or refine it. |
+| Defect/remedy separation | adopted | A reviewer may diagnose a valid defect while proposing an oversized mechanism; the coordinator accepts the defect and remedy independently and compares a smaller boundary, type, transaction, assertion, deletion, or existing-test fix. |
+| Delta-aware reruns | adopted | Recompute applicability from the actual repair delta and rerun only affected owners or newly applicable lanes, with behavior/spec mandatory after behavior-changing repairs. |
+| Native review-lane cards | adopted | Keep ownership, exclusions, applicability, and ecosystem-quality brakes in `references/review-lanes.md` so the core runtime remains concise and reviewers receive only relevant guidance. |
+| Protected minimalism checks | adopted | Permission, security, idempotency, lock-order, migration, and durable-integrity checks require proof of the establishing invariant and its lifetime before removal. |
+| Non-recoverable comment threshold | adopted | Comments must preserve a durable fact unavailable from names, types, code, tests, or the owning module; export status alone creates no documentation obligation. |
+| Test-cost brake | adopted | Each proposed test needs a distinct realistic regression, the highest stable owned boundary, and a reason an existing test cannot be strengthened; bespoke concurrency machinery must be proportionate and reusable. |
+| Initial eval suite | adopted, bounded | Cover the eight existing spec behaviors with exactly eight cases over four dependency-free fixtures; rely on one judge per semantic case and expand only after an escaped regression. |
 | Cycle output | rejected | Per-cycle logs are mostly bookkeeping; the skill should track loops internally and report only validation plus residual material concerns. |
 | Scripts | rejected | No deterministic parsing or automation is required for v1. |
 | Runtime references | adopted | Bundled policy text belongs in `references/` so policy subagents receive exact policy content without relying on consuming repos. |
@@ -114,6 +124,11 @@
 | Generated/dependency drift | Slice definition and advisor checklist. | covered |
 | Test quality | `references/test-quality.md`, policy subagent prompt, and validation advisor. | covered |
 | Verification | Validate step and final output. | covered |
+| Finding ownership and deduplication | Coordinator clusters reports by stable locator and underlying cause and assigns one concern owner. | covered |
+| Remedy proportionality | Coordinator distinguishes defect acceptance from remedy acceptance and compares smaller fixes before persistent mechanisms or large harnesses. | covered |
+| Delta-aware repeat review | Repair-delta applicability reruns affected owners and any newly applicable lane without indiscriminate full-slice review. | covered |
+| Native lane quality brakes | `references/review-lanes.md` cards define ownership and ecosystem-quality thresholds for all eight general review tasks. | covered |
+| Regression eval coverage | Eight cases cover all eight behavior ids with four dependency-free fixtures. | covered |
 | Portability | Skill-root-local files and no provider-specific tool names. | covered |
 
 ## Description Optimization
@@ -144,14 +159,13 @@ Final description:
 
 ## Gaps
 
-- No real positive or negative iteration examples have been captured yet.
 - No automated semantic validator exists for advisor quality or concern materiality.
 - Subagent capacity and release behavior differ by consuming runtime; sessions already using agent slots may leave fewer than three available.
 - Source-app policy discovery uses a simple Markdown glob and may need refinement if consuming repos store policy docs outside `policies/`.
 - Semantic supersession may need tuning from real runs when local policies partially overlap broad bundled policies.
 - Evidence label taxonomy is intentionally small and may need revision after real use in `~/src/junior`.
-- Implementation-minimalism policy still needs tuning against real accepted/rejected Garfield findings.
-- Test-quality policy is generalized from one large PR and should be tuned against more repos after real use.
+- The transcript corpus is concentrated in a few large Peated roots; the new policy brakes should be checked against more independent repositories before further broadening.
+- Judge-only orchestration evals can be noisy and expensive. The 2026-07-22 Codex harness run could not create Garfield review agents (`collab spawn failed: no thread with id`) and timed out, while the no-skill baseline correctly failed the coordination judge. Keep the eight-case suite bounded, do not weaken it to avoid the orchestration requirement, and rerun the semantic comparison when the harness supports subagents.
 
 ## Changelog
 
@@ -177,3 +191,8 @@ Final description:
 - 2026-07-11: Made Garfield explicitly user-invoked in Claude Code and Codex with their respective invocation-policy metadata.
 - 2026-07-12: Added agentic source-app policy supersession so repo-wide local defaults replace redundant bundled policy reviews by intent and scope without repo configuration.
 - 2026-07-22: Migrated the maintenance contract to Skillet `spec.md`, synchronized `SKILL.md` with its spec hash, and deliberately omitted transcript-judged eval cases because Garfield's multi-subagent orchestration made them slow and low-signal.
+- 2026-07-22: Evaluated 844 native Garfield reviewer sessions across 12 lanes; kept every lane while identifying cross-lane duplication, oversized remedies, comment churn, unsafe minimalism, healthy-seam removal, and test-cost failure modes.
+- 2026-07-22: Added coordinator-side concern ownership, defect/remedy separation, protected-invariant repair gates, and repair-delta-aware reruns without adding a ninth spec behavior.
+- 2026-07-22: Added concise native review-lane cards and rewrote the bundled comment, minimalism, interface, and test-quality policies around transcript-backed quality brakes.
+- 2026-07-22: Added a bounded eight-case Skillet suite over four dependency-free fixtures, one case per existing behavior.
+- 2026-07-22: Passed `skillet validate` and `skillet eval --dry`; corrected fixture patch headers and smoke-tested all fixture setup. A focused live skill/baseline comparison remained unscored because the Codex eval harness could not spawn Garfield review agents and the skill trial timed out.

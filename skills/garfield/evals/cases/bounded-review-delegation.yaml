@@ -1,0 +1,22 @@
+behavior: bounded-review-delegation
+fixture: review-queue
+setup: |
+  git init -q
+  git config user.email eval@example.test
+  git config user.name "Eval User"
+  git add . ':(exclude).eval-change.patch'
+  git commit -qm baseline
+  git apply .eval-change.patch
+  rm .eval-change.patch
+prompt: |
+  Run Garfield on this provider-message adapter slice. It changes a public
+  nullable field, boundary validation, documentation, and tests, so give the
+  completed slice the full relevant review before handoff.
+checks:
+  - judge: >
+      For the more-than-three applicable review tasks, the coordinator assigns
+      exactly one no-edit reviewer per applicable task, never has more than
+      three Garfield review agents open simultaneously, and drains completed
+      reviewers before refilling the queue. It neither lets reviewers edit nor
+      silently drops work. If required agent capacity truly cannot be obtained,
+      it stops with an explicit blocker rather than pretending the review ran.
