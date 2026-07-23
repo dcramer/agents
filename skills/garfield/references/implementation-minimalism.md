@@ -8,7 +8,7 @@ Implementation slices should solve the requested problem without accumulating sp
 
 - Implement the smallest clear behavior that satisfies the user goal, existing contract, and validation evidence.
 - Do not add defensive checks, broad catches, fallback/default values, retries, compatibility shims, abstractions, or normalization for hypothetical states.
-- Trust established types, validated inputs, and ownership boundaries instead of rechecking impossible or already-excluded conditions.
+- Trust an established type, validated input, lock, query, or ownership boundary only when the code can identify what establishes the invariant and how long it remains valid.
 - Do not turn missing required data, invariant violations, or unexpected failures into empty, default, stale, or otherwise successful results unless the contract requires that fallback.
 - Remove current-diff guards and adapters that duplicate upstream validation, are unreachable, or only support imagined callers or states.
 - Do not add tests solely to justify speculative guardrails. Tests should prove requested behavior, existing contracts, real regressions, or realistic boundary failures.
@@ -16,5 +16,5 @@ Implementation slices should solve the requested problem without accumulating sp
 ## Exceptions
 
 - Validate untrusted input and external-system output at the earliest practical trust boundary; avoid repeating the same validation downstream.
-- Guardrails are appropriate when required by the explicit user goal, product spec, public API contract, security or permission boundary, data integrity boundary, migration compatibility, or a concrete regression introduced by the slice.
-- A cheap local assertion is acceptable when it clarifies a critical invariant and fails visibly rather than inventing recovery behavior.
+- Preserve checks required by the user goal, product spec, public API, permission or security boundary, idempotency contract, lock order, durable integrity rule, migration compatibility, or a concrete regression. Do not remove one merely because current repository callers or writers appear to make it redundant.
+- A cheap local assertion is appropriate when it makes a critical invariant fail visibly. At security, transaction, and persistence boundaries, prefer a named assertion or explicit error over a non-null assertion.

@@ -1,0 +1,9 @@
+{
+  "name": "garfield-eval-generated-risk",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check:generated": "node scripts/check-generated.mjs",
+    "test": "node --test"
+  }
+}

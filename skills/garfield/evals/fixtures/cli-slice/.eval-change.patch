@@ -1,0 +1,59 @@
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -1,4 +1,8 @@
+ # Report CLI
+ 
+ `renderReport(args, records)` renders every supplied record in its original
+ order using the stable text format.
++
++Pass `--format=json` to serialize the same records, in the same order, as a
++JSON array. Text remains the default. The helper stays dependency-free and
++continues to accept callers' existing record shapes.
+diff --git a/src/report.mjs b/src/report.mjs
+--- a/src/report.mjs
++++ b/src/report.mjs
+@@ -2,6 +2,17 @@ export function formatText(records) {
+   return records.map((record) => `${record.id}: ${record.title}`).join("\n");
+ }
+ 
+-export function renderReport(_args, records) {
++function formatJson(records) {
++  return JSON.stringify(
++    records
++      .filter((record) => record.active !== false)
++      .map((record) => ({ id: record.id, title: record.title })),
++  );
++}
++
++export function renderReport(args, records) {
++  if (args.includes("--format=json")) {
++    return formatJson(records);
++  }
+   return formatText(records);
+ }
+diff --git a/test/report.test.mjs b/test/report.test.mjs
+--- a/test/report.test.mjs
++++ b/test/report.test.mjs
+@@ -10,3 +10,15 @@ test("renders every record as text in input order", () => {
+ 
+   assert.equal(renderReport([], records), "2: Second\n1: First");
+ });
++
++test("renders records as JSON", () => {
++  const records = [
++    { id: 2, title: "Second", active: true },
++    { id: 1, title: "First", active: true },
++  ];
++
++  assert.equal(
++    renderReport(["--format=json"], records),
++    '[{"id":2,"title":"Second"},{"id":1,"title":"First"}]',
++  );
++});
+diff --git a/notes/local.txt b/notes/local.txt
+--- a/notes/local.txt
++++ b/notes/local.txt
+@@ -1 +1,2 @@
+ Keep these personal release notes intact.
++Unrelated draft: reconsider release naming next month.

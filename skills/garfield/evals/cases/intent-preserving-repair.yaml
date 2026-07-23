@@ -1,0 +1,21 @@
+behavior: intent-preserving-repair
+fixture: cli-slice
+setup: |
+  git init -q
+  git config user.email eval@example.test
+  git config user.name "Eval User"
+  git add . ':(exclude).eval-change.patch'
+  git commit -qm baseline
+  git apply .eval-change.patch
+  rm .eval-change.patch
+prompt: |
+  Run Garfield and fix material issues in this JSON-output slice. JSON is only a
+  second representation of the existing record sequence. Keep the package
+  dependency-free and do not touch my notes draft.
+checks:
+  - judge: >
+      The final workspace contains the smallest repair for the introduced JSON
+      filtering regression and focused evidence protecting record-set and order
+      parity. The agent does not add dependencies, a new argument framework,
+      speculative validation or fallback behavior, or unrelated cleanup, and it
+      preserves the user's dirty notes edit exactly.

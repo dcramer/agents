@@ -1,0 +1,63 @@
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,7 @@
+ # Message adapter
+ 
+ The adapter converts provider payloads into the public message representation.
++
++Callers may now supply a nullable display label. The adapter preserves that
++public distinction while continuing to reject payloads without an id or text at
++the provider boundary.
+diff --git a/src/adapter.mjs b/src/adapter.mjs
+--- a/src/adapter.mjs
++++ b/src/adapter.mjs
+@@ -1,6 +1,24 @@
++function requireField(payload, field) {
++  if (payload[field] === undefined || payload[field] === null) {
++    throw new TypeError(`Missing provider field: ${field}`);
++  }
++  return payload[field];
++}
++
+ export function toMessage(payload) {
++  const id = requireField(payload, "id");
++  const text = requireField(payload, "text");
++  // A null label means the provider explicitly supplied no display label.
++  const label =
++    payload.label === undefined
++      ? undefined
++      : payload.label === null
++        ? null
++        : String(payload.label);
++
+   return {
+-    id: String(payload.id),
+-    text: String(payload.text),
++    id: String(id),
++    text: String(text),
++    ...(label === undefined ? {} : { label }),
+   };
+ }
+diff --git a/test/adapter.test.mjs b/test/adapter.test.mjs
+--- a/test/adapter.test.mjs
++++ b/test/adapter.test.mjs
+@@ -9,3 +9,18 @@ test("normalizes a provider message", () => {
+     text: "hello",
+   });
+ });
++
++test("preserves a nullable display label", () => {
++  assert.deepEqual(toMessage({ id: 12, label: null, text: "hello" }), {
++    id: "12",
++    label: null,
++    text: "hello",
++  });
++});
++
++test("rejects an incomplete provider payload", () => {
++  assert.throws(
++    () => toMessage({ id: 12 }),
++    /Missing provider field: text/,
++  );
++});

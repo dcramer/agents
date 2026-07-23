@@ -1,0 +1,22 @@
+behavior: slice-framing
+fixture: cli-slice
+setup: |
+  git init -q
+  git config user.email eval@example.test
+  git config user.name "Eval User"
+  git add . ':(exclude).eval-change.patch'
+  git commit -qm baseline
+  git apply .eval-change.patch
+  rm .eval-change.patch
+prompt: |
+  Please run Garfield on my report CLI change. The intended slice adds a
+  dependency-free JSON format containing the same records in the same order as
+  text output. The edit in notes/local.txt is my unrelated draft; preserve it.
+checks:
+  - judge: >
+      The agent frames the current diff before review: it identifies the JSON
+      output contract, the dependency-free and compatibility expectations,
+      touched CLI/docs/tests, and the unrelated notes edit as out of scope. Its
+      review and any repairs remain limited to the slice and directly related
+      evidence, and notes/local.txt remains unchanged from the user's dirty
+      version.

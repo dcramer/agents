@@ -1,0 +1,21 @@
+behavior: concise-handoff
+fixture: cli-slice
+setup: |
+  git init -q
+  git config user.email eval@example.test
+  git config user.name "Eval User"
+  git add . ':(exclude).eval-change.patch'
+  git commit -qm baseline
+  git apply .eval-change.patch
+  rm .eval-change.patch
+prompt: |
+  Run Garfield on the JSON report slice and make any justified repair. When it
+  is ready, give me only the reviewer-facing readiness summary.
+checks:
+  - judge: >
+      The final response begins with exactly one clear `garfield: pass` or
+      `garfield: blocked` outcome, reports relevant validation commands and
+      results, includes the independent-verification result when one ran or a
+      non-obvious skip matters, and lists only residual material accepted or
+      deferred concerns. It omits cycle narration, reviewer-by-reviewer logs,
+      low-severity bookkeeping, and speculative next work.

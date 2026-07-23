@@ -27,13 +27,13 @@ The agent SHALL inspect the current status and diff, repository instructions, re
 
 ### Behavior: Effective review plan
 
-The agent SHALL build one effective review plan by discovering sorted source-app `policies/**/*.md` files except policy support documents, comparing their intent and scope with bundled policies, omitting superseded bundled policies, retaining supplemental policies, and classifying every candidate review task as applicable or skipped from concrete diff evidence.
+The agent SHALL build one effective review plan by discovering sorted source-app `policies/**/*.md` files except policy support documents, comparing their intent and scope with bundled policies, omitting superseded bundled policies, retaining supplemental policies, classifying every candidate review task as applicable or skipped from concrete diff evidence, and routing each applicable native task with its ownership and quality-brake guidance.
 
 #### Scenario: Local testing policy supersedes a bundled policy
 
 - **GIVEN** a test-changing slice and a repo-wide `policies/testing.md` that governs substantially the same concern as Garfield's bundled test-quality policy
 - **WHEN** Garfield plans its reviewers
-- **THEN** the plan marks behavior/spec, repository-instructions, and validation review applicable, omits the bundled test-quality policy as superseded, includes the local testing policy, and records diff-based reasons for every remaining applicable or skipped candidate
+- **THEN** the plan marks behavior/spec, repository-instructions, and validation review applicable, omits the bundled test-quality policy as superseded, includes the local testing policy, routes each native reviewer with its concern boundaries, and records diff-based reasons for every remaining applicable or skipped candidate
 
 ### Behavior: Bounded review delegation
 
@@ -47,33 +47,33 @@ The agent SHALL assign one no-edit subagent to every applicable review task or e
 
 ### Behavior: Evidence-grounded triage
 
-The agent SHALL independently judge reviewer output and accept a finding only when it is concrete, evidence-labeled, current-diff-caused or a required omission, materially severe, and fixable without expanding the requested behavior; it SHALL reject vague or preference-only findings and defer valid pre-existing or out-of-intent concerns.
+The agent SHALL independently judge reviewer output and accept a finding only when it is concrete, evidence-labeled, current-diff-caused or a required omission, materially severe, and fixable without expanding the requested behavior; it SHALL cluster reports with the same stable locator and underlying cause into one owned concern, distinguish acceptance of the demonstrated defect from acceptance of the suggested remedy, reject vague or preference-only findings, and defer valid pre-existing or out-of-intent concerns.
 
 #### Scenario: Mixed actionable and expanding findings
 
-- **GIVEN** reviewers report one changed-file contract mismatch, one vague refactor preference, and one valid pre-existing hardening opportunity
+- **GIVEN** behavior/spec and validation reviewers report the same changed-file contract mismatch with different remedies, alongside one vague refactor preference and one valid pre-existing hardening opportunity
 - **WHEN** the agent coordinates the findings
-- **THEN** it accepts the contract mismatch with severity, evidence, cause, and a concrete locator, rejects the vague preference, and defers the pre-existing hardening instead of implementing it
+- **THEN** it records one owned contract concern with both evidence sources, accepts only a proportionate remedy, rejects the vague preference, and defers the pre-existing hardening instead of implementing parallel fixes
 
 ### Behavior: Intent-preserving repair
 
-The agent SHALL apply only the smallest accepted blocker, high, or eligible medium fixes that preserve the core intent, keep unrelated user work intact, and avoid changing accepted inputs, error behavior, permissions, precedence, defaults, serialization, validation policy, or public API semantics unless explicitly requested or required to repair a slice regression.
+The agent SHALL apply only the smallest accepted blocker, high, or eligible medium fixes that preserve the core intent and unrelated user work; before adding a validator, trigger, cache, compatibility layer, wrapper, state field, or elaborate test harness, it SHALL compare a smaller boundary, type, transaction, assertion, deletion, or existing-test repair, and it SHALL preserve permission, security, idempotency, lock-order, migration, and durable-integrity checks unless the establishing invariant and its lifetime are proved.
 
 #### Scenario: Repair a local regression without broad hardening
 
-- **GIVEN** a slice introduced a failing null path and a reviewer also suggests a new compatibility fallback unrelated to the request
+- **GIVEN** a slice introduced a failing null path, one reviewer proposes a compatibility fallback, and another proposes removing a locked-row authorization recheck because current callers already checked permission
 - **WHEN** the agent repairs accepted findings
-- **THEN** it fixes the introduced null-path regression, leaves unrelated changes untouched, and defers the compatibility fallback
+- **THEN** it fixes the introduced null-path regression at the narrowest existing boundary, leaves unrelated changes untouched, defers the compatibility fallback, and preserves the authorization recheck absent proof that its invariant remains valid for the transaction lifetime
 
 ### Behavior: Targeted validation and stopping
 
-The agent SHALL run the smallest relevant tests, type checks, linters, builds, schema checks, generated-artifact checks, or explicit blockers after repairs and repeat review after material edits until no current-diff-caused blocker, high, or medium concerns remain, while stopping on repeated concerns, lack of progress, clarification needs, or out-of-intent redesign.
+The agent SHALL run the smallest relevant tests, type checks, linters, builds, schema checks, generated-artifact checks, or explicit blockers after repairs, recompute review applicability from each repair delta, and rerun only the affected concern owners and newly applicable lanes until no current-diff-caused blocker, high, or medium concerns remain, while always rerunning behavior/spec after behavior-changing repairs and stopping on repeated concerns, lack of progress, clarification needs, or out-of-intent redesign.
 
 #### Scenario: Material repair requires another review cycle
 
-- **GIVEN** Garfield accepted and repaired a high-severity changed-code defect
+- **GIVEN** Garfield accepted and repaired a high-severity generated-schema defect without changing comments, dependencies, or unrelated interfaces
 - **WHEN** targeted validation passes after the repair
-- **THEN** the agent reviews the material edit again and stops only after material concerns are cleared, validation passes, or a defined blocker is reported
+- **THEN** the agent reruns behavior/spec and generated/dependencies review, does not restart unaffected comment, dependency, or interface reviews, and stops only after material concerns are cleared, validation passes, or a defined blocker is reported
 
 ### Behavior: Independent verification
 
@@ -108,3 +108,7 @@ The agent MUST NOT introduce behavior changes, speculative hardening, broad rewr
 ### Constraint: No implicit reviewer authority
 
 The agent MUST NOT let review subagents edit the workspace or accept their findings without coordinator validation.
+
+### Constraint: No review-induced accretion
+
+The agent MUST NOT implement duplicate fixes or add comments, tests, wrappers, compatibility paths, persistent mechanisms, or test harnesses solely to satisfy overlapping reviewer suggestions without a distinct current-diff contract or proportionate need.

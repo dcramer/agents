@@ -2,6 +2,14 @@
 
 Runtime instructions live in `SKILL.md`. The Skillet behavior contract lives in `spec.md`. Provenance and decisions live in `SOURCES.md`.
 
+## Native Review Lanes
+
+`references/review-lanes.md` defines the ownership boundary and quality brake
+for each general Garfield reviewer. Pass a native reviewer only its matching
+card. The coordinator clusters findings by locator and underlying cause so one
+lane owns the concern and other reports supply corroborating evidence instead
+of duplicate fixes.
+
 ## Bundled Review Policies
 
 | Policy | Source |

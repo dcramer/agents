@@ -1,0 +1,24 @@
+diff --git a/schema/status.json b/schema/status.json
+--- a/schema/status.json
++++ b/schema/status.json
+@@ -1,3 +1,3 @@
+ {
+-  "statuses": ["open", "closed"]
++  "statuses": ["open", "closed", "paused"]
+ }
+diff --git a/generated/statuses.mjs b/generated/statuses.mjs
+--- a/generated/statuses.mjs
++++ b/generated/statuses.mjs
+@@ -1,2 +1,2 @@
+ // Generated from schema/status.json.
+-export const statuses = ["open", "closed"];
++export const statuses = ["open", "closed", "pause"];
+diff --git a/test/status.test.mjs b/test/status.test.mjs
+--- a/test/status.test.mjs
++++ b/test/status.test.mjs
+@@ -7,4 +7,4 @@ test("accepts generated statuses", () => {
+   assert.equal(acceptsStatus("open"), true);
+   assert.equal(acceptsStatus("closed"), true);
+-  assert.equal(acceptsStatus("paused"), false);
++  assert.equal(acceptsStatus("paused"), true);
+ });
