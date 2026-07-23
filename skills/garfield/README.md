@@ -1,6 +1,6 @@
 # Garfield
 
-Runtime instructions live in `SKILL.md`. Maintenance contract lives in `SPEC.md`. Provenance and decisions live in `SOURCES.md`.
+Runtime instructions live in `SKILL.md`. The Skillet behavior contract lives in `spec.md`. Provenance and decisions live in `SOURCES.md`.
 
 ## Bundled Review Policies
 
