@@ -33,18 +33,18 @@ Problem-specific examples:
 
 Aim for **at least 10 questions total** when the brief is genuinely ambiguous. Fewer if the user has given a lot of context already.
 
-## Phase 4: Format the question round
+## Phase 4: Ask the user
 
-Use the `questions_v2` tool — it renders native form components the user answers in a structured way. Per question:
+Ask the user the questions directly in a single, structured round. Per question:
 
-- **Prefer multiple choice**; always include "Explore a few options" and "Decide for me" as escape hatches, plus "Other" for open-ended fallback
-- **SVG options** for visual choices (layout, icon style, color swatch, mood); **sliders** for numeric ranges (generous bounds); **file-pickers** for assets; **freeform** for genuinely open questions
+- **Prefer multiple choice** when the likely answers are known; include "Explore a few options" and "Decide for me" as escape hatches, plus an open-ended fallback
+- Ask for a number or range when a numeric constraint matters, request relevant assets when needed, and use freeform questions for genuinely open decisions
 
-Order most-important-first — the form streams in, and the user can start answering before the rest loads. Keep titles short; subtitles are optional clarifications.
+Order the most important questions first. Keep each question short and add clarification only when needed.
 
-## Phase 5: End the turn, then confirm
+## Phase 5: Wait for answers, then confirm
 
-`questions_v2` does not return an answer immediately — after calling it, **end your turn**. Don't anticipate answers and proceed. When answers come back, read all of them, then:
+After asking, wait for the user's response. Don't anticipate answers and proceed. When answers come back, read all of them, then:
 
 - Briefly recap the choices that most affect the design
 - Note answers you'd push back on (gently — the user is the manager)
@@ -55,5 +55,5 @@ If you later discover an early answer was wrong (e.g., the user said "no novel i
 ## Anti-patterns
 
 - **Don't skip asking.** "I'll just start building" produces designs that miss the brief.
-- **Don't ask everything.** Cap around 10–15; bundle into one form, not one-at-a-time across turns.
+- **Don't ask everything.** Cap around 10–15; bundle questions into one round, not one-at-a-time across turns.
 - **Don't ask what you can derive.** If the attached brand guide has the primary color, don't ask for it.
