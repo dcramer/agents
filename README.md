@@ -65,7 +65,7 @@ npx skills add dcramer/agents --all
 - `skills/garfield/` runs an incremental implementation review-fix-verify loop with evidence-labeled concerns and optional independent verification.
 - `skills/odie/` analyzes recurring transcript, commit, Sentry, GitHub, CI, review, or Garfield evidence and plans hard deterministic lint, type, CI, schema, generated-artifact, or pre-commit rules.
 - `skills/design/` provides an opinionated, accessibility-aware design workflow with procedures for production, extraction, and review.
-- `skills/testing-agents/` guides integration tests that use real agents, LLMs, and application services while mocking outside HTTP services.
+- `skills/testing-agents/` designs trustworthy agent tests and evals by separating fixed contracts from model-variable quality, selecting the right test layer, and resisting fixture overfitting.
 
 The implementation loop is named `garfield` instead of a generic name like `iterate` so it stays unique across personal and shared skill registries and avoids conflicts with similarly named workflow skills.
 
