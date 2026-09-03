@@ -22,3 +22,4 @@
 ## Validation
 - No repo package manager or standard test command is defined yet.
 - For skill changes, run the relevant structural validator when available and report the exact command and result.
+- For Skillet-managed skills, do not create or run eval cases by default. Add or run evals only when the user explicitly requests eval work or when the task specifically targets eval coverage.

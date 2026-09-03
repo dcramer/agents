@@ -13,6 +13,7 @@ npx @sentry/dotagents init --user
 npx @sentry/dotagents add --user dcramer/agents garfield
 npx @sentry/dotagents add --user dcramer/agents odie
 npx @sentry/dotagents add --user dcramer/agents design
+npx @sentry/dotagents add --user dcramer/agents testing-agents
 npx @sentry/dotagents install --user
 ```
 
@@ -35,6 +36,10 @@ source = "dcramer/agents"
 [[skills]]
 name = "design"
 source = "dcramer/agents"
+
+[[skills]]
+name = "testing-agents"
+source = "dcramer/agents"
 ```
 
 ### skills
@@ -45,6 +50,7 @@ You can also install this repo's skills with the `skills` CLI:
 npx skills add dcramer/agents --skill garfield
 npx skills add dcramer/agents --skill odie
 npx skills add dcramer/agents --skill design
+npx skills add dcramer/agents --skill testing-agents
 ```
 
 Install every skill in this repo:
@@ -59,6 +65,7 @@ npx skills add dcramer/agents --all
 - `skills/garfield/` runs an incremental implementation review-fix-verify loop with evidence-labeled concerns and optional independent verification.
 - `skills/odie/` analyzes recurring transcript, commit, Sentry, GitHub, CI, review, or Garfield evidence and plans hard deterministic lint, type, CI, schema, generated-artifact, or pre-commit rules.
 - `skills/design/` provides an opinionated, accessibility-aware design workflow with procedures for production, extraction, and review.
+- `skills/testing-agents/` guides integration tests that use real agents, LLMs, and application services while mocking outside HTTP services.
 
 The implementation loop is named `garfield` instead of a generic name like `iterate` so it stays unique across personal and shared skill registries and avoids conflicts with similarly named workflow skills.
 
