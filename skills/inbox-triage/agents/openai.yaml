@@ -1,0 +1,4 @@
+interface:
+  display_name: "Inbox Triage"
+  short_description: "Mark clear-cut spam and report borderline mail"
+  default_prompt: "Use $inbox-triage to clear spam from my inbox for the last day."

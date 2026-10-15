@@ -14,6 +14,7 @@ npx @sentry/dotagents add --user dcramer/agents garfield
 npx @sentry/dotagents add --user dcramer/agents odie
 npx @sentry/dotagents add --user dcramer/agents design
 npx @sentry/dotagents add --user dcramer/agents testing-agents
+npx @sentry/dotagents add --user dcramer/agents inbox-triage
 npx @sentry/dotagents install --user
 ```
 
@@ -40,6 +41,10 @@ source = "dcramer/agents"
 [[skills]]
 name = "testing-agents"
 source = "dcramer/agents"
+
+[[skills]]
+name = "inbox-triage"
+source = "dcramer/agents"
 ```
 
 ### skills
@@ -51,6 +56,7 @@ npx skills add dcramer/agents --skill garfield
 npx skills add dcramer/agents --skill odie
 npx skills add dcramer/agents --skill design
 npx skills add dcramer/agents --skill testing-agents
+npx skills add dcramer/agents --skill inbox-triage
 ```
 
 Install every skill in this repo:
@@ -66,6 +72,7 @@ npx skills add dcramer/agents --all
 - `skills/odie/` analyzes recurring transcript, commit, Sentry, GitHub, CI, review, or Garfield evidence and plans hard deterministic lint, type, CI, schema, generated-artifact, or pre-commit rules.
 - `skills/design/` provides an opinionated, accessibility-aware design workflow with procedures for production, extraction, and review.
 - `skills/testing-agents/` designs trustworthy agent tests and evals by separating fixed contracts from model-variable quality, selecting the right test layer, and resisting fixture overfitting.
+- `skills/inbox-triage/` marks clear-cut Gmail spam (cold pitches, marketing blasts, unsolicited applications) and reports borderline mail. Personal sender lists live in a private `~/.config/inbox-triage/rules.md`, not in this repo; see `references/rules-template.md`.
 
 The implementation loop is named `garfield` instead of a generic name like `iterate` so it stays unique across personal and shared skill registries and avoids conflicts with similarly named workflow skills.
 
