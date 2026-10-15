@@ -4,25 +4,33 @@
 
 | Source | Trust | Contribution | Usage |
 | --- | --- | --- | --- |
-| Owner triage session (2026-10-15) | High | Two weeks of inbox review: the owner confirmed cold vendor pitches, event blasts, unsolicited job applications and unwanted newsletters as spam, and corrected subscriptions that looked like marketing. | Defined the spam categories, the keep-over-spam precedence, borderline handling, and the corrections loop. |
-| Owner instruction "get rid of the things that are clearly people spamming me" | High | Corporate subscriptions must survive even when they look like marketing. | Made the keep list override all spam signals and "when in doubt, keep" the default. |
-| Owner scheduling request | High | Recurring runs at 7am, 1pm and 5pm on weekdays. | Added the window-since-previous-run behavior so digests do not repeat. |
-| Owner privacy decision | High | This repo is public; sender lists stay in a private rules file. | Split generic method (skill) from personal lists (`~/.config/inbox-triage/rules.md`). |
-| Gmail connector tool surface | High | Thread search, thread read, mark/unmark thread spam; no native filter creation. | Limited mailbox changes to reversible spam marks and excluded filter building from triggers. |
-| Local `AGENTS.md` and `skills/testing-agents/` | High | Repo skill shape and Skillet conventions. | Drove `spec.md`, `SKILL.md`, `SOURCES.md`, and `agents/openai.yaml`. |
+| Explicit workflow and architecture requirements | High | Separate reusable mechanics from private configurable policy. | Shared evidence checks, inbox scope, audit, safe unsubscribe, verification, and feedback; category/contact/sender choices remain private. |
+| Explicit authorization and safety requirements | High | Permit verified unsubscribe, retain reversible action evidence, and correct mistakes. | Bounded mechanisms and accurate blocked/unknown outcome reporting. |
+| General relationship-checking lesson | High | Exact-sender search can miss an organization relationship under another address. | Relevant organization/domain history checks across authorized accounts, preserving private provenance. |
+| Local repository instructions | High | Runtime/spec/source/UI conventions and structural validation; no default eval runs. | Consistent artifacts and generic policy-conditioned behavior scenarios. |
 
 ## Decisions
 
-- Mark spam rather than trash: it is reversible and trains Gmail's filter.
-- Keep the owner's sender lists out of the skill; ship only a template with placeholder domains.
-- Exclude podcast, interview and speaking requests from spam even when unsolicited; the owner treats them as wanted.
-- Report borderline mail instead of guessing so the owner's corrections can grow the rules file.
+- Keep category preferences, contact never-spam choices, recipient-specific recruiting choices, and sender exceptions in private per-account policy. Ship configurable dimensions without preselecting personal tastes.
+- Support private exact-owner repository notification rules using verified service/repository metadata; protect unrelated organization, account, and security mail. Treat prior event registration as context rather than blanket consent for future promotions.
+- Support explicitly confirmed archive overrides for exact To, authenticated From domain, verified account role, and provider activity type. Allow named general keep defaults to be superseded for archive only; preserve never-touch/message-specific protections and exclude account/security mail from activity rules.
+- Resolve ambiguous organization shorthand before bulk changes; distinguish automated product/error alerts from human/internal conversations and never infer an all-employee sender-domain policy from a brand reference.
+- Separate mailbox disposition from subscription action so a configured spam protection need not prohibit an authorized opt-out.
+- Restrict cleanup to current inbox messages, rechecking before labeling/mutations; archived/sent history is context only. Explicit corrections to previously changed messages are the exception.
+- Use descriptive action/reason labels and private original/final-state audits. Verify actual outcomes and preserve unrelated state during corrections.
+- Leave genuinely ambiguous cases unchanged and ask for feedback. Generalize only safety/process lessons into shared guidance.
+- Treat every new/undefined category or no-match case as mandatory feedback: leave unchanged, persist the explicit scoped answer privately, verify the save, then apply. Reuse confirmed rules on later runs; general tastes or confidence never replace a missing rule.
+- Keep shared scenarios generic and explicitly conditioned on hypothetical policies; include no addresses, real domains, subject lines, message identifiers, account identities, or private anecdotes.
 
 ## Gaps
 
-- No eval cases yet; triage quality depends on live inbox content.
-- Native Gmail filters are out of scope until a connector can create them.
+- Connector capabilities vary: recipient/history/contact inspection, audit labels, message-level changes, and verified unsubscribe may be unavailable. Report affected operations as blocked rather than assuming success.
+- The Markdown policy template is an agent-readable configuration contract, not an executable schema or classifier.
+- Behavior scenarios define the contract; no live inbox or eval suite is exercised by this documentation update.
+- Native mailbox filter creation remains out of scope.
 
 ## Changelog
 
-- 2026-10-15: Initial skill from the owner's inbox cleanup and scheduled triage routine.
+- Separated configurable private classification policy from shared workflow, evidence checks, inbox-only mutations, reason labels, safe unsubscribe, verification, and feedback.
+- Added recipient/contact/organization-history checks, private audit/correction fields, and generic policy-conditioned scenarios.
+- Removed obsolete blanket archive/unsubscribe prohibitions and private examples.

@@ -1,4 +1,4 @@
 interface:
   display_name: "Inbox Triage"
-  short_description: "Mark clear-cut spam and report borderline mail"
-  default_prompt: "Use $inbox-triage to clear spam from my inbox for the last day."
+  short_description: "Triage unwanted mail with private rules and action audits"
+  default_prompt: "Use $inbox-triage to clean up my inbox for the last day and ask for feedback on ambiguous cases."
