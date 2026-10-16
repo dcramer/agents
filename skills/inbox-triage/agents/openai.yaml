@@ -1,4 +1,4 @@
 interface:
   display_name: "Inbox Triage"
-  short_description: "Triage unwanted mail with private rules and action audits"
-  default_prompt: "Use $inbox-triage to clean up my inbox for the last day and ask for feedback on ambiguous cases."
+  short_description: "Triage email events with targeted evidence and private rules"
+  default_prompt: "Use $inbox-triage to process the supplied email events and ask for feedback on undefined categories."

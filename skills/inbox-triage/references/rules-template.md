@@ -14,6 +14,12 @@ account:
   organization_domains: []
   shared_recipient_aliases: []
   authorized_history_accounts: []
+execution:
+  mode: event
+  state_directory: state
+  policy_revision: null
+  max_batch_messages: 50
+  recovery_overlap_minutes: 30
 audit:
   path: actions.jsonl
   labels:
@@ -44,6 +50,8 @@ pending_feedback: []
 - Labels must describe the action/reason, never an assistant's name. Configure descriptive labels for additional archive reasons.
 - `authorized_history_accounts` limits cross-account relationship reads; it does not grant new access or permission to mutate those accounts. Record account provenance privately without merging preferences.
 - Cleanup changes only messages currently in `INBOX`, rechecked immediately before labeling/acting. Archived/sent history is read-only. Explicit corrections of previously changed messages may operate outside the inbox within their confirmed scope.
+- Normal events carry account-scoped message IDs; do not scan every inbox for each event. Resolve `state_directory` beside this private file. Maintain compact policy/decision/evidence indexes, pending feedback/action claims, and separate recovery checkpoints according to [event-state.md](event-state.md). These records must stay private; populate none in this shared template.
+- Derive `policy_revision` from authoritative rule content/version, including protections and overrides; update it after every confirmed change. Compact rule projections are lossless for decisions, never a summary that omits exceptions. Batch size bounds work, not evidence quality or freshness. Use recovery mode only for missing IDs/gaps or requested cleanup.
 
 ## Category and override entries
 

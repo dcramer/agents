@@ -72,7 +72,7 @@ npx skills add dcramer/agents --all
 - `skills/odie/` analyzes recurring transcript, commit, Sentry, GitHub, CI, review, or Garfield evidence and plans hard deterministic lint, type, CI, schema, generated-artifact, or pre-commit rules.
 - `skills/design/` provides an opinionated, accessibility-aware design workflow with procedures for production, extraction, and review.
 - `skills/testing-agents/` designs trustworthy agent tests and evals by separating fixed contracts from model-variable quality, selecting the right test layer, and resisting fixture overfitting.
-- `skills/inbox-triage/` applies private per-account policy through recipient/contact/relationship checks, inbox-only spam/archive actions, safe unsubscribe, reason labels, and verified corrections. Category preferences and sender exceptions stay private; ambiguous cases prompt feedback. See `references/rules-template.md` for policy and audit configuration outside this repo.
+- `skills/inbox-triage/` processes account-scoped email events with compact private rules, verified decision reuse, and targeted recipient/contact/relationship evidence. It preserves inbox-only actions, safe unsubscribe, reason labels, readback, and feedback for undefined categories. Coalesced events share fresh context; cursor-based gap recovery and explicit cleanup are separate from normal event processing. See `references/rules-template.md` and `references/event-state.md` for private policy/state contracts; no per-email all-inbox sweep is required.
 
 The implementation loop is named `garfield` instead of a generic name like `iterate` so it stays unique across personal and shared skill registries and avoids conflicts with similarly named workflow skills.
 

@@ -2,11 +2,11 @@
 
 ## Intent
 
-Apply private per-account classification policy through generic evidence checks, inbox-only mutations, reason labels, safe unsubscribe, audit/verification, and feedback. Category choices, contact preferences, and sender exceptions are private configuration, not shared defaults. Leave genuinely ambiguous cases unchanged and ask for feedback.
+Apply private per-account classification policy to message events with targeted evidence and verified reuse, preserving inbox-only mutations, reason labels, safe unsubscribe, audit/verification, and feedback. Bounded recovery/cleanup is a separate mode, not a scan repeated for each event. Category choices, contact preferences, and sender exceptions remain private. Reduce redundant context, never evidence requirements or confidence gates.
 
 ## Triggers
 
-- **SHOULD** apply to inbox cleanup, scheduled triage, and corrections of earlier triage.
+- **SHOULD** apply to per-message email events, coalesced event batches, explicit inbox cleanup, gap recovery, scheduled triage, and corrections of earlier triage.
 - **SHOULD NOT** apply to drafting replies, general summaries, scheduling, finding a specific message, deleting mail, or building native filters.
 
 ## Behaviors
@@ -14,6 +14,8 @@ Apply private per-account classification policy through generic evidence checks,
 ### Behavior: Load private per-account rules
 
 The agent SHALL verify the connected account and load the supplied private rules file or the account-specific default in the runtime instructions. It SHALL use legacy single-account rules only after verifying account ownership. It SHALL separate explicit preferences from observations, preserve correction scope, and never apply one account's rules to another. Missing policy SHALL be disclosed and remain read-only until explicit current instructions or confirmed private policy supply the needed choices. Mutations also require private audit storage and an audit label.
+
+For event batches the agent SHALL verify the account binding and current policy revision once per compatible group, refreshing after changes/reconnects. It MAY load a compact policy projection and candidate rules rather than all raw policy/audit text only when the projection is current and preserves all global protections, precedence, applicable conditions, exclusions, overrides, labels, and source references. A stale/incomplete projection SHALL be rebuilt from source, never treated as permission to drop protections. Setup/reference documents SHALL be loaded only when their mode or rule complexity requires them.
 
 #### Scenario: No rules file
 
@@ -27,9 +29,124 @@ The agent SHALL verify the connected account and load the supplied private rules
 - **WHEN** a new generic marketing message arrives
 - **THEN** previous delivery alone does not create consent or an always-keep preference
 
-### Behavior: Inspect recipients, content, and history within a bounded window
+#### Scenario: Compact policy omits a protection
 
-The agent SHALL page through the inbox search for the requested window, defaulting to 24 hours; recurring windows SHALL start at the previous scheduled run with about 30 minutes of overlap. It SHALL exclude confirmed skip rules and deduplicate against private audits. It SHALL inspect actual To/Cc, sender, subject, content, timestamps, and relevant thread/sent history. Relationship checks SHALL consider relevant organization/domain history beyond exact senders, across other accounts only when authorized, preserving account provenance privately without merging policy. A jobs recipient, claimed reply, or snippet SHALL NOT establish solicitation. Missing essential evidence SHALL leave affected mail unchanged with the limitation reported. Cleanup mutations SHALL affect only messages currently in `INBOX`, rechecked immediately before labeling or acting. Archived/sent history may be read but MUST NOT be changed; explicit corrections to previously changed messages are the only exception.
+- **GIVEN** a cached candidate rule projection lacks a relevant never-touch exception or uses an older policy revision
+- **WHEN** an event would otherwise match that candidate
+- **THEN** the agent rebuilds the projection from authoritative private rules before deciding and does not act from the incomplete cache
+
+### Behavior: Process event targets without inbox sweeps
+
+When provider message IDs and an account binding are supplied, the agent SHALL process only those targets, first reading minimal current metadata and labels. It SHALL NOT scan entire connected inboxes or default to a day/week window. A thread ID provides context, not authority to mutate its other members. Missing/ambiguous account binding SHALL block dependent work. Metadata routing can identify candidate rules or a verified no-action keep; it SHALL NOT substitute for missing protective evidence before mutation. Reads SHALL preserve unread state.
+
+#### Scenario: One event among many inbox messages
+
+- **GIVEN** a verified account and one provider message ID with a matching private rule
+- **WHEN** the event is processed
+- **THEN** the agent reads that message and only the targeted context needed to resolve its rule/protections, without scanning either connected inbox
+- **AND** other thread members are context only unless independently authorized event targets
+
+#### Scenario: Event targets a message already archived
+
+- **GIVEN** an ordinary event whose target no longer has inbox membership
+- **WHEN** current labels are read
+- **THEN** the agent performs no label, spam, archive, or unsubscribe mutation and does not expand into a broader inbox scan
+
+#### Scenario: Timed-out archive already removed inbox membership
+
+- **GIVEN** a pending archive audit with an unknown result and a target now outside the inbox
+- **WHEN** the retry event reads current state
+- **THEN** it reconciles the original audit using final-label readback without issuing another cleanup action or silently discarding the pending outcome
+
+### Behavior: Expand evidence only when needed without weaker gates
+
+The agent SHALL use cheap exact routing and compact facts first, then fetch relevant body/full relevant thread, contact, sender, and organization history as necessary to establish every applicable condition and protection before spam/archive/unsubscribe. It SHALL NOT load whole inboxes, contact directories, unrelated attachments, or repeated raw histories merely for convenience. Every safety/evidence requirement still applies; unavailable necessary evidence SHALL leave mail unchanged and prompt feedback or a blocker report. An exact sender rule or confident snippet classification alone SHALL NOT establish absence of transactional, security, or relationship protections.
+
+#### Scenario: Exact sender rule conflicts with new reply context
+
+- **GIVEN** a candidate spam rule and a message whose relevant thread now includes a genuine owner reply
+- **WHEN** minimal metadata exposes a new thread revision or insufficient relationship evidence
+- **THEN** the agent expands the relevant thread and applies the configured relationship protection rather than acting from the sender match or old cache
+
+#### Scenario: Read would change unread state
+
+- **GIVEN** the available inspection operation marks a message read without a non-marking alternative
+- **WHEN** the agent needs that content
+- **THEN** it reports the inspection limitation instead of silently changing read/unread state
+
+### Behavior: Reuse only verified unchanged decisions
+
+Decision keys SHALL include account and provider message ID, policy revision, message/thread state, relevant evidence dependencies, action/audit status, and verified final state. Reuse SHALL require validation that these inputs are unchanged; a delivery ID, old audit label, matching sender, or timestamp alone is insufficient. New messages can reuse rules and fresh facts, never blindly inherit another message's disposition. Changes to replies, labels, contacts, relationship facts, policy, or corrections SHALL invalidate affected entries. Missing source-version/freshness support SHALL require targeted retrieval, including refreshing negative evidence before mutation. Completed duplicates SHALL cause no repeated mutation, unsubscribe, question, or digest; partial/unknown outcomes SHALL be reconciled before retrying.
+
+#### Scenario: Duplicate completed event
+
+- **GIVEN** a repeated event with a completed audited decision and verified unchanged policy, message/thread/evidence dependencies, and final labels
+- **WHEN** the duplicate arrives
+- **THEN** the agent avoids repeated body/history expansion, mailbox/subscription actions, and the completed digest
+
+#### Scenario: Contact absence cannot be refreshed by timestamp
+
+- **GIVEN** a cached no-contact result without a provider freshness/version guarantee
+- **WHEN** a new spam candidate from that sender arrives
+- **THEN** the agent performs a fresh targeted contact lookup before acting; elapsed time or cache presence does not satisfy the protection check
+
+#### Scenario: User restores previously archived mail
+
+- **GIVEN** an audited archived message is now back in the inbox
+- **WHEN** a duplicate event is processed
+- **THEN** changed final state invalidates the completed decision and the agent reconciles intent rather than automatically re-archiving it
+
+#### Scenario: Same sender sends a different message
+
+- **GIVEN** a previous message was spam and a new message has a different ID and potentially protected content
+- **WHEN** the new event arrives
+- **THEN** the prior outcome does not authorize spam for the new message; its relevant evidence and rules must be evaluated
+
+### Behavior: Coalesce safely and serialize overlapping actions
+
+Coalesced events SHALL be partitioned by verified account and deduplicated by target IDs. Fresh account/rule/label and targeted contact/thread evidence MAY be reused within compatible bounded groups when it covers each decision. Delays, reconnects, new source changes, or uncertain freshness SHALL require revalidation. Account namespaces and provenance SHALL prevent policy/contact/cache leakage even for identical provider IDs. Atomic private claims or a single consumer SHALL serialize overlapping message/subscription actions; unavailable safe coordination SHALL leave overlapping work pending. Expired claims/timeouts SHALL be reconciled, not assumed failed external actions. Reporting failures SHALL NOT replay mailbox actions.
+
+#### Scenario: Same sender in a coalesced account group
+
+- **GIVEN** several message events in one account need the same contact fact and current policy revision
+- **WHEN** they are evaluated/applied together with fresh complete evidence and no intervening source changes
+- **THEN** one shared targeted lookup and rule load can serve the group while each message receives its own decision, audit, and readback
+
+#### Scenario: IDs collide across accounts
+
+- **GIVEN** two accounts have the same provider message ID but different rules and contact state
+- **WHEN** their events are coalesced
+- **THEN** separate account-scoped entries and evidence produce independent decisions without leaking policy or suppressing one account's event
+
+#### Scenario: Unknown unsubscribe result after a timeout
+
+- **GIVEN** a pending unsubscribe claim and audit with an unknown external result
+- **WHEN** another worker receives the duplicate event
+- **THEN** it does not repeat the unsubscribe or steal an active claim; it waits or reconciles current state before any retry
+
+### Behavior: Inspect recipients, content, and history within bounded recovery
+
+Only missing IDs, a detected gap/interrupted recovery, or explicit cleanup SHALL enter recovery mode for a resolved account. Prefer a provider history cursor; otherwise use a bounded window from the last fully covered checkpoint with about 30 minutes of overlap. Initial explicit cleanup defaults to 24 hours if no window is supplied; a missing-ID event without a checkpoint uses a bounded interval around its trusted timestamp and reports unknown earlier coverage. The agent SHALL page all results through a fixed upper boundary, excluding confirmed skip rules, then route recovered IDs through the event pipeline. It SHALL NOT use the largest event ID/timestamp as proof of scan coverage or widen failed single-message fetches to all accounts. Checkpoint advancement requires all pages enumerated and all outcomes or pending retry/feedback work durably recorded; interrupted persistence leaves coverage incomplete.
+
+In either mode the agent SHALL inspect actual To/Cc, sender, subject, content, timestamps, and relevant thread/sent history, using verified unchanged evidence only under the freshness contract. Relationship checks SHALL consider relevant organization/domain history beyond exact senders, across other accounts only when authorized, preserving account provenance privately without merging policy. A jobs recipient, claimed reply, or snippet SHALL NOT establish solicitation. Missing essential evidence SHALL leave affected mail unchanged with the limitation reported. Cleanup mutations SHALL affect only messages currently in `INBOX`, rechecked immediately before labeling or acting. Archived/sent history may be read but MUST NOT be changed; explicit corrections to previously changed messages are the only exception.
+
+#### Scenario: Missing event ID with an account checkpoint
+
+- **GIVEN** an event has a verified account but no usable message ID and that account has a recovery checkpoint
+- **WHEN** recovery runs
+- **THEN** it resumes that account's history cursor or bounded overlap window, deduplicates recovered messages, and does not scan another account
+
+#### Scenario: Recovery stops during pagination
+
+- **GIVEN** only the first page of a fixed recovery interval is durably accounted for
+- **WHEN** the next page fails before persistence
+- **THEN** the checkpoint does not claim the whole interval complete; continuation/pending work is retained and incomplete coverage is reported
+
+#### Scenario: Out-of-order delivery is not coverage
+
+- **GIVEN** a newer event arrives before an older event and there is unenumerated recovery history
+- **WHEN** the newer event completes
+- **THEN** its timestamp does not advance the recovery coverage checkpoint past unseen mail
 
 #### Scenario: Inbox thread includes archived history
 
@@ -92,7 +209,7 @@ The agent SHALL apply current explicit instructions and private policy at their 
 
 ### Behavior: Check contacts before spam
 
-Before any proposed spam mutation, the agent SHALL check connected contacts and relationship history and apply configured protections. Missing contact access or ambiguous identity SHALL block proposed spam changes pending feedback. Contact and podcast never-spam choices belong in private policy, not universal defaults.
+Before any proposed spam mutation, the agent SHALL check connected contacts and relationship history using fresh targeted reads or verified unchanged facts under the freshness contract, and apply configured protections. Missing contact access/freshness or ambiguous identity SHALL block proposed spam changes pending feedback. Contact and podcast never-spam choices belong in private policy, not universal defaults.
 
 #### Scenario: Configured contact protection
 
@@ -192,6 +309,13 @@ When a case is not obvious, the agent SHALL leave it unchanged and ask for feedb
 - **THEN** it applies the action only to messages within the approved scope after current-state and audit checks
 - **AND** a later matching message uses the confirmed rule without asking the same question again
 
+#### Scenario: Pending feedback is coalesced and invalidates old decisions
+
+- **GIVEN** multiple events in one account share an undefined category and approved scope
+- **WHEN** the user answers the single pending question and the rule is persisted
+- **THEN** dependent compact projections/decisions are invalidated, each affected message is rechecked, and only the newly approved scope is applied
+- **AND** another account or a materially different unknown category still requires its own feedback
+
 #### Scenario: Rule persistence fails
 
 - **GIVEN** a user answer authorizes an action for a previously undefined category
@@ -213,7 +337,7 @@ When a case is not obvious, the agent SHALL leave it unchanged and ask for feedb
 
 ### Behavior: Audit every changed message
 
-Before each mutation, the agent SHALL privately record account, identifiers, timestamp, evidence, original labels, intended action, and configured audit label. Labels SHALL describe the action/reason, never use an assistant's name, and default to `inbox-triage-spam` for spam/associated unsubscribe and `inbox-triage-archived-applications` for application archives. Other explicit archive reasons SHALL require a descriptive configured label. The applicable label SHALL be on every affected message before or atomically with changes, including unsubscribe and corrections. The agent SHALL NOT label messages merely read or kept. Audit or labeling failure SHALL block subsequent changes for affected messages. Cleanup thread operations SHALL require inspection of every affected message, current inbox membership, and a common permitted action; otherwise use message-level operations or leave the thread unchanged.
+Before each mutation, the agent SHALL privately record account, identifiers, timestamp, evidence, original labels, intended action, and configured audit label. Labels SHALL describe the action/reason, never use an assistant's name, and default to `inbox-triage-spam` for spam/associated unsubscribe and `inbox-triage-archived-applications` for application archives. Other explicit archive reasons SHALL require a descriptive configured label. The applicable label SHALL be on every affected message before or atomically with changes, including unsubscribe and corrections. The agent SHALL NOT label messages merely read or kept. Audit or labeling failure SHALL block subsequent changes for affected messages. Cleanup thread operations SHALL require inspection of every affected message, current inbox membership, and a common permitted action; in event mode each affected message must also be an authorized event target. Otherwise use message-level operations or leave the thread unchanged.
 
 #### Scenario: Audit label failure
 
@@ -279,7 +403,7 @@ After mutation, the agent SHALL re-read messages and verify the audit label, exp
 
 ### Behavior: Private outcome digest
 
-The agent SHALL report security heads-up items, confirmed spam/archive counts, separate unsubscribe outcomes, ambiguous cases with feedback requests, corrections, and failures in the private conversation. It SHALL distinguish partial or unknown results from success and include only enough private context for recognition. An empty run SHALL be reported in one line.
+The agent SHALL report new security heads-up items, confirmed spam/archive outcomes, separate unsubscribe results, unresolved feedback requests, corrections, and failures in the private conversation. It SHALL distinguish partial or unknown results from success, include only enough private context for recognition, and report incomplete recovery coverage. Verified completed duplicate events SHALL NOT repeat the prior digest or answered/pending question; report delivery state is independent from action completion. An empty explicit cleanup run SHALL be reported in one line.
 
 #### Scenario: Spam succeeds but unsubscribe is blocked
 

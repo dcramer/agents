@@ -1,0 +1,50 @@
+# Event state, freshness, and recovery
+
+Use this reference when setting up private state, reconciling uncertain duplicates, batching/concurrency, or recovering missed deliveries. Normal event handling needs the current account binding, compact policy, relevant state records, and targeted provider reads; it does not need the full policy template, historical audit, or this reference reloaded for every message.
+
+## Account-local state
+
+Keep these records outside repositories, alongside the private rules or at explicitly configured private paths. Do not put live values in shared examples.
+
+| Record | Minimum fields and purpose |
+| --- | --- |
+| Policy projection | Account key, source policy revision/hash, global protections and precedence, exact rule IDs/scopes/conditions/exclusions, dispositions/subscription choices, action-label mapping, evidence requirements and source references. A lossless decision-relevant projection, not a prose guess. |
+| Decision index | Account + provider message ID; delivery/event IDs; message/content and thread revision; policy revision; relevant evidence dependency keys/versions; decision, action status, audit reference, verified final labels/unread state, report status, pending question key. |
+| Evidence cache | Account/provenance + subject key (sender, organization, thread, contact or service); fact, source/reference, query scope, observed source revision, checked-at time, freshness validation, completeness/limitations. Never equate an incomplete/empty query with proof of absence. |
+| Pending work | Account + message/subscription claim key, owner/run, lease state, intended action, durable pending audit reference, retry/reconciliation status. |
+| Pending feedback | Account + exact category/rule scope + uncertainty/evidence signature, affected message references, asked state, answer source, resulting policy revision. |
+| Recovery checkpoint | Account + provider history cursor or covered time interval, fixed upper boundary, pagination continuation, durable pending outcomes and coverage status. Event deliveries do not advance scan coverage by themselves. |
+
+Persist compact facts and source references, not repeated bodies or whole thread transcripts. Keep the reversible audit separate and retain the original/final states needed for corrections. Bound cache/index growth according to private retention settings; evicted evidence is a cache miss, not permission to skip checks. Do not discard unresolved actions, feedback, or recovery progress during compaction.
+
+## Freshness and reuse
+
+- Scope keys by account even if provider IDs collide across accounts. Cross-account relationship reads require explicit authorization and retain source account provenance; never use another account's private policy, contacts, labels, or decisions implicitly.
+- Check current policy version before using a projection; every relevant rule, override, protection, account-binding, or label-mapping change invalidates affected decisions. A correction/feedback answer updates policy first, verifies persistence, then invalidates dependent state. If dependency tracking is incomplete, conservatively invalidate the account's decisions.
+- Verify current message labels/unread state and thread/message versions with lightweight provider reads. If no reliable version exists, fetch the targeted content/history needed to establish whether evidence changed. Old labels, matching sender, event delivery ID alone, or elapsed time alone do not prove unchanged state. User restoration of an archived/spam message is not permission to repeat that action; reconcile it and ask when intent is unclear.
+- Prefer provider revision/change tokens for contacts and relationship history. New replies, participants, contact changes, authentication/type metadata changes, or corrections invalidate dependent facts. Cache absence findings only when the query was complete and its source freshness is verifiable; no persistent negative-cache shortcut without that proof. If the connector cannot validate freshness, repeat the targeted lookup before relying on it for a mutation.
+- For one bounded, coalesced group, fetch the account/policy once and bulk-read needed messages. Share a fresh contact lookup for the same sender or relevant thread/history lookup when those decisions are evaluated/applied together and the evidence covers each message. Revalidate after delays, reconnects, source changes, newly arriving evidence, or uncertain freshness; do not treat a long-running batch as an immutable snapshot. Batch size/time limits are resource bounds, not permission to use stale facts.
+- Reuse a completed decision only if account, target ID, policy, message/thread state, every decision-relevant evidence dependency, and verified final state agree. Otherwise re-evaluate the changed portion with the same safety threshold. A cached verified keep can avoid body/history expansion when its applicability remains proven. A new message may reuse a rule and fresh facts, never blindly inherit another message's outcome.
+- A verified duplicate needs no repeated mutation, unsubscribe, question, or digest. A self-generated label event may be a duplicate only after matching verified final state. Partial/unknown results require reconciliation of current state and the recorded action plan. Never assume a timeout succeeded or replay a confirmed unsubscribe to make labels consistent.
+
+## Minimal evidence and coalescing
+
+Exact recipient/sender/provider metadata can route to candidate rules before loading a body. Always include global protections and competing scoped rules in the decision set. An exact sender rule is not itself proof that a new message is nontransactional, nonsecurity, or outside an existing relationship. Before a harmful disposition, retrieve full relevant body/thread/relationship/contact evidence whenever the compact evidence does not establish all conditions and exclusions. No token budget or confident category guess waives that requirement.
+
+Fetch by event message IDs first. Expand only those threads and targeted sender/organization searches that answer an unresolved decision question. Do not preload both inboxes, a whole contact directory, unrelated attachments, or an entire private audit. If a provider returns extra messages/fields, reduce to a private compact projection before bringing results into model context; preserve full evidence references for necessary follow-up. Reads must preserve unread state; if the available read path marks mail read and cannot avoid that side effect, report the limitation and do not silently use it as inspection.
+
+Coalesce pending questions only where account, approved scope, and uncertainty match. Every genuinely new/undefined category must still reach the user; an existing unanswered question means leave the related messages pending, not invent an answer. After a persisted answer, recheck affected messages' current state and apply only within the approved scope. A digest or notification failure must not cause mailbox actions to repeat.
+
+## Concurrency and retries
+
+Use an atomic private claim/queue for the account/message before mutation and a subscription-scoped claim for unsubscribe. Distinct account groups may run independently; overlapping work must serialize. Claims contain no new classification authority. If atomic claiming is unavailable, use a single consumer or leave overlapping work pending. Re-read message state and policy/evidence validity after claiming; another worker or user may have changed them.
+
+Write intent before action and completion only after readback. On crash/expired claim, reconcile the pending audit with current provider state before retrying; never steal an apparently active claim or treat lease expiry as proof an external action failed. Unknown subscription results remain unknown until verified. Do not advance/report a pending action as successful to suppress retries.
+
+## Separate recovery mode
+
+1. Resolve the exact account and cause: missing message IDs, a provider-reported gap/expired cursor, interrupted recovery, or an explicit cleanup request. Missing account identity requires clarification, not a search of every account. A failed message fetch is not permission to widen into a full inbox sweep.
+2. Prefer that account's provider history/change cursor to recover message IDs. If only a thread ID is available, use trusted event/change metadata to identify target messages; do not mutate all thread members. If targets cannot be resolved, enter bounded recovery and report the limitation.
+3. Without a usable cursor, search a bounded inbox window from the last fully covered checkpoint with about 30 minutes of overlap. For an initial explicit cleanup with no checkpoint, use the requested window or default last 24 hours; for an event with no checkpoint, use the smallest supported interval around its trusted timestamp and report any unknown earlier coverage. If neither a checkpoint nor trusted event time supplies a bound, ask for the interval instead of guessing a full-inbox search. Capture a fixed upper boundary, page through all results, and route recovered IDs through the same event pipeline. Large gaps may be chunked; never silently truncate coverage or claim older history was scanned.
+4. Persist continuation and per-message outcomes. Advance the coverage checkpoint only when every page through the fixed upper boundary is enumerated and each item has a durable completed or pending/retry/feedback record. Persist pending work before advancing; resume it independently until resolved. A failure before persistence leaves the checkpoint behind. Out-of-order events and the largest seen ID/timestamp are not coverage proofs.
+5. Deduplicate overlap with verified decision state. Scope skip-in-search rules to confirmed policy; policy changes that require revisiting skipped/kept items need an explicitly scoped reevaluation, not an automatic all-account rescan. Report the covered range, remaining gap/pending work, and failures concisely, then return to event mode.
